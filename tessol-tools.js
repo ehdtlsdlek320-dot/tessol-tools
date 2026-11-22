@@ -446,3 +446,5 @@
   window.TessolTools = { boot: boot, calc: { dewFrom: dewFrom, rhFrom: rhFrom, frostFrom: frostFrom, heightsFor: heightsFor } };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
+/* 제품 구성 선택기: 본문에 [[TESSOL-TOOL:config]]가 있으면 tessol-config.min.js를 같은 경로에서 불러옵니다(2026-11-22). */
+(function () { var c = document.currentScript; if (!c || !document.body || document.body.textContent.indexOf('[[TESSOL-TOOL:config') < 0) return; var s = document.createElement('script'); s.src = c.src.replace(/tessol-tools(\.min)?\.js/, 'tessol-config.min.js'); document.body.appendChild(s); })();
