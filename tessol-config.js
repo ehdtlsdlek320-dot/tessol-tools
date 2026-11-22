@@ -276,7 +276,7 @@
       var g = G[k]; if (g.mx && count(k) >= g.mx) return true;
       return (d.lim || []).some(function (L) { if (L.gs.indexOf(k) < 0) return false; var mx = L.if && has(L.if[0], L.if[1]) ? L.mx2 : L.mx; return L.gs.reduce(function (a, j) { return a + (shown(G[j]) ? count(j) : 0); }, 0) >= mx; });
     }
-    function done(g) { if (!shown(g)) return true; if (g.y === 'dig') return S[g.k].filter(Boolean).length === (g.n || 4); if (g.y === 'one') return !!S[g.k] || (!g.r && S[g.k] === '' && vis[g.k]); return !g.r || count(g.k) > 0; }
+    function done(g) { if (!shown(g)) return true; if (g.y === 'dig') return S[g.k].filter(Boolean).length === (g.n || 4); if (g.y === 'one') return !!S[g.k] || (!g.r && ((S[g.k] === '' && vis[g.k]) || !(d.v && d.v.k.indexOf(g.k) > -1))); return !g.r || count(g.k) > 0; }
     function val(k) { var g = G[k], v = S[k]; if (!shown(g)) return ''; if (g.y === 'one') return v; if (g.y === 'dig') return (g.srt ? v.slice().sort() : v).join(''); if (g.y === 'many') return g.o.filter(function (o) { return v.indexOf(o[0]) > -1; }).map(function (o) { return o[0]; }); var out = []; g.o.forEach(function (o) { for (var n = 0; n < (v[o[0]] || 0); n++) out.push(o[0]); }); return out; }
     function sub(t) { return String(t || '').replace(/\{(\w+)\}/g, function (m, k) { var x = G[k] ? val(k) : ''; return Array.isArray(x) ? x.join('') : (x || '‥'); }); }
     function build() {
