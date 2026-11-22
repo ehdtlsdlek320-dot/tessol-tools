@@ -205,7 +205,8 @@
      g: 항목 [{k,t,y:'one'|'many'|'qty'|'dig',r,o:[[코드,이름,보조,사진]],mx,n,w:[k,[코드]],none}]
      p: 모델명 조립 ["글자" | {g,pre,sep,suf}]   v: 유효 조합 {k:[...], r:[[코드...,품번,사진]]}
      x: 함께 못 고르는 짝 [[[k,c],[k,c]]]   off: [{if:[k,[c]],g,c:[...]}]   lim: [{gs:[k],mx,if:[k,[c]],mx2,m}]
-     im: {d,r:[[k,c,파일]]}  b: 사진 기준 주소  ch: 사진 띠로 보여 줄 항목  cap: 사진 설명 */
+     im: {d,r:[[k,c,파일]]}  b: 사진 기준 주소  ch: 사진 띠로 보여 줄 항목  cap: 사진 설명
+     cmp: 외부 센서를 고르면 공식 사진 오려낸 조각으로 합성 {k:수량 항목, cap, b:[[k,c,파일,w,h,폭비,출구x,y,방향x,y,실폭mm]], p:{코드:[파일,w,h,끝x,y,길이mm]}} */
   var CSS2 = [
     '.tq2 .tq-ph{min-height:0;height:auto;padding:6px 0}.tq-photo{display:block;width:100%;max-width:258px;height:auto;margin:0 auto;aspect-ratio:1/1;object-fit:contain;mix-blend-mode:multiply;animation:tqf .22s ease-out}',
     '.tq2 img,.tq img{opacity:1!important;visibility:visible!important}.tq-chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}.tq-chip{width:62px;text-align:center;font-size:11px;line-height:1.25;color:var(--sub)}.tq-chip img{display:block;width:62px;height:62px;object-fit:contain;background:#fff;border:1px solid var(--line);mix-blend-mode:normal;margin-bottom:3px}',
@@ -294,7 +295,47 @@
       return f;
     }
     function label(k) { var g = G[k], x = val(k); if (!shown(g)) return ''; if (g.y === 'one') { var o = x && O(k, x); return o ? o[1] : (x === '' && vis[k] && !g.r ? (g.none || '고르지 않음') : ''); } if (g.y === 'dig') return x; if (g.y === 'qty') return g.o.filter(function (o) { return S[k][o[0]]; }).map(function (o) { return o[0] + (S[k][o[0]] > 1 ? ' ×' + S[k][o[0]] : ''); }).join(', '); return x.join(', '); }
-    var lastPh = null, seen = {};
+    var lastPh = null, seen = {}, IC = {};
+    function cmpSel() { // 합성할 하우징·센서 목록(없으면 null)
+      var C = d.cmp; if (!C || !shown(G[C.k])) return null;
+      var L = [].concat(val(C.k) || []).filter(function (c) { return C.p[c]; }).slice(0, 5); if (!L.length) return null;
+      return { b: C.b.filter(function (r) { return has(r[0], [r[1]]); })[0] || C.b[0], L: L };
+    }
+    function cmpDraw(cv, q) {
+      var fs = [q.b[2]].concat(q.L.map(function (c) { return d.cmp.p[c][0]; })).filter(function (f, i, a) { return a.indexOf(f) === i; }), left = fs.length, gone = 0;
+      fs.forEach(function (f) { var im = IC[f]; if (!im) { im = IC[f] = new Image(); im.src = src(f); } if (im.complete) { left--; if (!im.naturalWidth) gone = 1; } else { im.addEventListener('load', tick); im.addEventListener('error', function () { gone = 1; tick(); }); } });
+      function tick() { if (--left > 0 || cv.__q !== q) return; if (!gone) return go(); var f0 = photo(); cv.outerHTML = f0 ? '<img class="tq-photo" src="' + src(f0) + '" alt="' + esc(cv.getAttribute('aria-label')) + '">' : ''; }
+      if (left <= 0) { left = 1; tick(); }
+      function go() {
+        if (cv.__q !== q) return;
+        var x = cv.getContext('2d'), W = cv.width, H = cv.height, B = q.b, n = q.L.length, R = B[8] >= 0, hw = B[5] * W, hh = hw * B[4] / B[3], hx = R ? W * 0.05 : W * 0.95 - hw, hy = H * 0.05, k = hw / B[10];
+        var A = [hx + B[6] * hw, hy + B[7] * hh], dir = [B[8], B[9]], pp = [-dir[1], dir[0]], cw = Math.max(W * 0.004, k * 1.75);
+        var P = q.L.map(function (c) { var p = d.cmp.p[c]; return { p: p, im: IC[p[0]], h: p[5] * k, w: p[5] * k * p[1] / p[2] }; });
+        var mx = Math.max.apply(null, P.map(function (s) { return s.h; })), f = Math.min(1, H * 0.4 / mx), x0 = R ? W * 0.3 : W * 0.06, x1 = R ? W * 0.94 : W * 0.7;
+        if (n === 1) { x0 = R ? W * 0.5 : W * 0.26; x1 = x0 + W * 0.24; }
+        P.forEach(function (s, i) {
+          s.h *= f; s.w *= f; s.a = ((i - (n - 1) / 2) * (n > 3 ? 5 : 7) + (i % 2 ? 2 : -2) + (R ? -3 : 3)) * Math.PI / 180;
+          var cx = x0 + (i + 0.5) * (x1 - x0) / n, by = H * (0.96 - (n > 2 && i % 2 ? 0.03 : 0));
+          s.t = [cx + Math.sin(s.a) * s.h * 0.5, by - Math.cos(s.a) * s.h * (1 - s.p[4])];
+        });
+        x.clearRect(0, 0, W, H); x.lineCap = 'round'; x.lineJoin = 'round';
+        var g = x.createRadialGradient(0, 0, 0, 0, 0, 1); g.addColorStop(0, 'rgba(30,34,40,.26)'); g.addColorStop(1, 'rgba(30,34,40,0)');
+        x.save(); x.translate(hx + hw / 2, hy + hh * 0.97); x.scale(hw * 0.56, hh * 0.1); x.fillStyle = g; x.beginPath(); x.arc(0, 0, 1, 0, 7); x.fill(); x.restore();
+        P.forEach(function (s, i) { // 케이블: 출구 → 하우징 모서리 바깥 경유점 → 센서, 그림자 → 본선 → 윤기
+          var r = R ? i : n - 1 - i, o = ((n - 1) / 2 - i) * (R ? 1 : -1) * cw * 1.3, S = [A[0] + pp[0] * o, A[1] + pp[1] * o], T = s.t, up = [Math.sin(s.a), -Math.cos(s.a)];
+          var M = [(R ? hx + hw + W * (0.03 + 0.028 * r) : hx - W * (0.03 + 0.028 * r)), hy + hh + H * (0.05 + 0.012 * r)], v = [(T[0] - M[0]) * 0.6, T[1] - M[1] + H * 0.2], vl = Math.sqrt(v[0] * v[0] + v[1] * v[1]); v = [v[0] / vl, v[1] / vl];
+          var l1 = Math.abs(M[0] - S[0]) * 0.6 + W * 0.04, l2 = Math.max(M[1] - S[1], H * 0.12) * 0.55, l3 = (T[1] - M[1]) * 0.35, L2 = (T[1] - M[1]) * 0.45;
+          var c = [S[0] - dir[0] * W * 0.03, S[1] - dir[1] * W * 0.03, S[0] + dir[0] * l1, S[1] + dir[1] * l1, M[0] - v[0] * l2, M[1] - v[1] * l2, M[0], M[1], M[0] + v[0] * l3, M[1] + v[1] * l3, T[0] + up[0] * L2, T[1] + up[1] * L2, T[0] - up[0] * s.h * 0.04, T[1] - up[1] * s.h * 0.04];
+          function path(dx, dy) { x.beginPath(); x.moveTo(c[0] + dx, c[1] + dy); for (var j = 2; j < 14; j += 6) x.bezierCurveTo(c[j] + dx, c[j + 1] + dy, c[j + 2] + dx, c[j + 3] + dy, c[j + 4] + dx, c[j + 5] + dy); x.stroke(); }
+          x.save(); x.strokeStyle = 'rgba(25,28,33,.16)'; x.lineWidth = cw * 1.5; x.shadowColor = 'rgba(25,28,33,.35)'; x.shadowBlur = W * 0.012; x.shadowOffsetY = W * 0.004; path(W * 0.004, H * 0.012); x.restore();
+          x.strokeStyle = '#18191b'; x.lineWidth = cw; path(0, 0);
+          x.strokeStyle = 'rgba(255,255,255,.2)'; x.lineWidth = cw * 0.28; path(-cw * 0.14, -cw * 0.2);
+        });
+        x.save(); x.shadowColor = 'rgba(30,34,40,.22)'; x.shadowBlur = W * 0.025; x.shadowOffsetY = W * 0.012; x.drawImage(IC[B[2]], hx, hy, hw, hh); x.restore();
+        P.forEach(function (s) { x.save(); x.translate(s.t[0], s.t[1]); x.rotate(s.a); x.shadowColor = 'rgba(30,34,40,.3)'; x.shadowBlur = W * 0.012; x.shadowOffsetX = W * 0.003; x.shadowOffsetY = W * 0.008; x.drawImage(s.im, -s.p[3] * s.w, -s.p[4] * s.h, s.w, s.h); x.restore(); });
+        cv.style.visibility = '';
+      }
+    }
     function paint() {
       if (open) seen[open] = 1;
       // 쓸 수 없게 된 선택 지우기
@@ -320,7 +361,12 @@
           if (g.y === 'qty') { var n = S[g.k][c] || 0; l.querySelector('output').textContent = n; l.querySelector('[data-q="1"]').disabled = !!why || (g.q1 && g.q1.indexOf(c) > -1 && n >= 1); l.querySelector('[data-q="-1"]').disabled = !n; }
         });
       });
-      var f = photo(); if (f !== lastPh) { lastPh = f; $('.tq-ph').innerHTML = f ? '<img class="tq-photo" src="' + src(f) + '" alt="' + esc((d.alt || d.t) + (code ? ' ' + code : '')) + '" decoding="async">' : ''; }
+      var cq = cmpSel(), f = cq ? 'cmp:' + cq.b[2] + ':' + cq.L.join() : photo(), alt = esc((d.alt || d.t) + (code ? ' ' + code : ''));
+      if (f !== lastPh) {
+        lastPh = f; $('.tq-ph').innerHTML = cq ? '<canvas class="tq-photo" width="900" height="900" role="img" aria-label="' + alt + '" style="visibility:hidden"></canvas>' : f ? '<img class="tq-photo" src="' + src(f) + '" alt="' + alt + '" decoding="async">' : '';
+        if (cq) { var cv = $('.tq-ph canvas'); cv.__q = cq; cmpDraw(cv, cq); }
+        $('.tq-fig .tq-fn').textContent = cq && d.cmp.cap || d.cap || '제조사 공식 제품 사진입니다.';
+      }
       var chips = []; (d.ch || []).forEach(function (k) { if (!shown(G[k])) return; [].concat(val(k) || []).filter(function (c, i, a) { return c && a.indexOf(c) === i; }).forEach(function (c) { var o = O(k, c); if (o && o[3]) chips.push('<span class="tq-chip"><img src="' + src(o[3]) + '" alt="' + esc(o[1]) + '">' + esc(o[0]) + '</span>'); }); });
       $('.tq-chips').innerHTML = chips.join(''); $('.tq-chips').style.display = chips.length ? '' : 'none';
       $('.tq-cap').innerHTML = (d.cp || d.g.slice(0, 3).map(function (g) { return g.k; })).filter(function (k) { return shown(G[k]); }).map(function (k) { return '<div><dt>' + esc(G[k].st || G[k].t) + '</dt><dd>' + esc(label(k) || '선택 전') + '</dd></div>'; }).join('');
