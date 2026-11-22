@@ -247,7 +247,7 @@
         g.o.forEach(function (o) {
           var tp = g.y === 'one' ? 'radio' : 'checkbox';
           h += '<label class="tq-op' + (hasIm ? ' has-im' : '') + '" data-v="' + esc(o[0]) + '">' + (g.y === 'qty' ? '' : '<input type="' + tp + '" name="tq2-' + g.k + '" value="' + esc(o[0]) + '">') + '<span class="r' + (tp === 'checkbox' || g.y === 'qty' ? ' sq' : '') + '"></span>'
-            + (hasIm ? (o[3] ? '<img class="im" src="' + src(o[3]) + '" alt="" loading="lazy" decoding="async">' : '<span class="im ph"></span>') : '')
+            + (hasIm ? (o[3] ? '<img class="im" src="' + src(o[3]) + '" alt="" decoding="async">' : '<span class="im ph"></span>') : '')
             + '<code>' + (g.lc ? '' : esc(o[0])) + '</code><span class="n">' + esc(o[1]) + '</span>'
             + (g.y === 'qty' ? '<span class="s"><span class="tq-qty"><button type="button" data-q="-1" aria-label="빼기">−</button><output>0</output><button type="button" data-q="1" aria-label="더하기">+</button></span></span>' : '<span class="s">' + esc(o[2] || '') + '</span>') + '</label>';
         });
