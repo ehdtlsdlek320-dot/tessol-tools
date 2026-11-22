@@ -208,7 +208,7 @@
      im: {d,r:[[k,c,파일]]}  b: 사진 기준 주소  ch: 사진 띠로 보여 줄 항목  cap: 사진 설명 */
   var CSS2 = [
     '.tq2 .tq-ph{min-height:0;height:auto;padding:6px 0}.tq-photo{display:block;width:100%;max-width:258px;height:auto;margin:0 auto;aspect-ratio:1/1;object-fit:contain;mix-blend-mode:multiply;animation:tqf .22s ease-out}',
-    '.tq-chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}.tq-chip{width:62px;text-align:center;font-size:11px;line-height:1.25;color:var(--sub)}.tq-chip img{display:block;width:62px;height:62px;object-fit:contain;background:#fff;border:1px solid var(--line);mix-blend-mode:normal;margin-bottom:3px}',
+    '.tq2 img,.tq img{opacity:1!important;visibility:visible!important}.tq-chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}.tq-chip{width:62px;text-align:center;font-size:11px;line-height:1.25;color:var(--sub)}.tq-chip img{display:block;width:62px;height:62px;object-fit:contain;background:#fff;border:1px solid var(--line);mix-blend-mode:normal;margin-bottom:3px}',
     '.tq-full{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;padding:10px 12px;border:1px solid var(--line);border-top:0;background:#fff;font-size:12.5px;color:var(--sub)}.tq-full strong{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;font-size:15px;color:var(--ink);letter-spacing:.01em;word-break:break-all}.tq-full strong.is-part{color:var(--mute);font-weight:400}',
     '.tq-op.is-off{opacity:.38;cursor:not-allowed}.tq-op.is-off:hover{background:none}.tq-op .r.sq{border-radius:2px}.tq-op.is-sel .r.sq{box-shadow:inset 0 0 0 3px #fff}',
     '.tq-op.has-im{grid-template-columns:18px 46px 52px 1fr auto}.tq-op .im{width:46px;height:46px;object-fit:contain;background:#fff;border:1px solid var(--line)}.tq-op .im.ph{background:var(--soft)}',
@@ -321,7 +321,7 @@
         });
       });
       var f = photo(); if (f !== lastPh) { lastPh = f; $('.tq-ph').innerHTML = f ? '<img class="tq-photo" src="' + src(f) + '" alt="' + esc((d.alt || d.t) + (code ? ' ' + code : '')) + '" decoding="async">' : ''; }
-      var chips = []; (d.ch || []).forEach(function (k) { if (!shown(G[k])) return; [].concat(val(k) || []).filter(function (c, i, a) { return c && a.indexOf(c) === i; }).forEach(function (c) { var o = O(k, c); if (o && o[3]) chips.push('<span class="tq-chip"><img src="' + src(o[3]) + '" alt="' + esc(o[1]) + '" loading="lazy">' + esc(o[0]) + '</span>'); }); });
+      var chips = []; (d.ch || []).forEach(function (k) { if (!shown(G[k])) return; [].concat(val(k) || []).filter(function (c, i, a) { return c && a.indexOf(c) === i; }).forEach(function (c) { var o = O(k, c); if (o && o[3]) chips.push('<span class="tq-chip"><img src="' + src(o[3]) + '" alt="' + esc(o[1]) + '">' + esc(o[0]) + '</span>'); }); });
       $('.tq-chips').innerHTML = chips.join(''); $('.tq-chips').style.display = chips.length ? '' : 'none';
       $('.tq-cap').innerHTML = (d.cp || d.g.slice(0, 3).map(function (g) { return g.k; })).filter(function (k) { return shown(G[k]); }).map(function (k) { return '<div><dt>' + esc(G[k].st || G[k].t) + '</dt><dd>' + esc(label(k) || '선택 전') + '</dd></div>'; }).join('');
       $('.tq-b2').setAttribute('aria-disabled', ok ? 'false' : 'true');
