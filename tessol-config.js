@@ -226,7 +226,7 @@
     var w = document.createElement('section'); w.className = 'tq tq2'; w.setAttribute('aria-label', d.t);
     var strip = (d.mp ? '<button type="button" class="tq-seg" data-s="model"><b>' + esc(d.mp) + '</b><span>모델</span></button>' : '')
       + d.g.map(function (g) { return '<button type="button" class="tq-seg" data-s="' + g.k + '"><b></b><span>' + esc(g.st || g.t) + '</span></button>'; }).join('');
-    var h = '<div class="tq-top"><div><h3>' + esc(d.t) + '</h3><p>항목을 고르면 주문 모델명과 사진이 함께 바뀝니다. 기준: ' + esc(d.src) + '</p></div><button type="button" class="tq-reset">처음부터</button></div>'
+    var h = '<div class="tq-top"><div><h3>' + esc(d.t) + '</h3><p>' + ((d.im && d.im.r && d.im.r.length) || d.g.some(function (g) { return g.o.some(function (o) { return o[3]; }); }) || (d.v && d.v.r.some(function (r) { return r[r.length - 1]; })) ? '항목을 고르면 주문 모델명과 사진이 함께 바뀝니다. ' : '항목을 고르면 주문 모델명이 완성됩니다. ') + '기준: ' + esc(d.src) + '</p></div><button type="button" class="tq-reset">처음부터</button></div>'
       + '<div class="tq-code" role="group" aria-label="고른 항목">' + strip + '</div>'
       + '<div class="tq-full" aria-live="polite"><span>주문 모델명</span><strong></strong></div>'
       + '<div class="tq-code-ft"><span class="tq-st"></span><span class="tq-left"></span></div>'
