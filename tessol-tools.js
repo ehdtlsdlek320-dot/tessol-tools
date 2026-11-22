@@ -3,7 +3,7 @@
    이름: dewpoint, mapping, mkt, tur, mapcheck, regcheck */
 (function () {
   'use strict';
-  if (window.__TESSOL_TOOLS) return; window.__TESSOL_TOOLS = 'v1';
+  if (window.__TESSOL_TOOLS) return; window.__TESSOL_TOOLS = 'v1.1';
 
   var P = function (u) { return u; };
   var REC = {
@@ -322,6 +322,25 @@
     draw();
   }
 
+
+  function seoTools() {
+    if (!/^\/tools\//.test(location.pathname)) return;
+    var t = document.querySelector('.tessol-hero__title');
+    if (t && !document.querySelector('h1')) { var h1 = document.createElement('h1'); h1.className = t.className; h1.innerHTML = t.innerHTML; t.parentNode.replaceChild(h1, t); }
+    var name = (t ? t.textContent : document.title).replace(/⁠/g, '').trim(), url = location.origin + location.pathname, ld = [];
+    var qs = document.querySelectorAll('.tessol-faq .faq-item');
+    if (qs.length) ld.push({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: Array.prototype.map.call(qs, function (li) {
+      var qn = li.querySelector('.faq-item__subject'), an = li.querySelector('.faq-item__answer');
+      return { '@type': 'Question', name: qn ? qn.textContent.trim() : '', acceptedAnswer: { '@type': 'Answer', text: an ? an.textContent.replace(/^\s*A\.\s*/, '').trim() : '' } };
+    }) });
+    if (document.querySelector('.tt')) ld.push({ '@context': 'https://schema.org', '@type': 'WebApplication', name: name, url: url, applicationCategory: 'BusinessApplication', operatingSystem: 'Web', inLanguage: 'ko-KR', isAccessibleForFree: true,
+      description: (document.querySelector('meta[name=description]') || {}).content || '', offers: { '@type': 'Offer', price: '0', priceCurrency: 'KRW' }, provider: { '@id': 'https://www.tessol.com/#organization' } });
+    var bc = [{ '@type': 'ListItem', position: 1, name: '홈', item: location.origin + '/' }, { '@type': 'ListItem', position: 2, name: '실무 계산 도구', item: location.origin + '/tools/calculators' }];
+    if (!/\/tools\/calculators\/?$/.test(location.pathname)) bc.push({ '@type': 'ListItem', position: 3, name: name, item: url });
+    ld.push({ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: bc });
+    ld.forEach(function (o) { var sc = document.createElement('script'); sc.type = 'application/ld+json'; sc.textContent = JSON.stringify(o); document.head.appendChild(sc); });
+  }
+
   var TOOLS = { dewpoint: dewpoint, mapping: mapping, mkt: mkt, tur: tur, mapcheck: mapcheck, regcheck: regcheck };
   function boot() {
     var marks = [];
@@ -330,9 +349,10 @@
       if (m && TOOLS[m[1].toLowerCase()]) marks.push([p, m[1].toLowerCase()]);
     });
     Array.prototype.forEach.call(document.querySelectorAll('[data-tessol-tool]'), function (d) { if (TOOLS[d.getAttribute('data-tessol-tool')]) marks.push([d, d.getAttribute('data-tessol-tool')]); });
-    if (!marks.length) return;
+    if (!marks.length) { try { seoTools(); } catch (e) {} return; }
     if (!document.getElementById('tt-css')) { var s = document.createElement('style'); s.id = 'tt-css'; s.textContent = CSS; document.head.appendChild(s); }
     marks.forEach(function (x) { try { TOOLS[x[1]](x[0]); } catch (e) { if (window.console) console.warn('tessol-tools', x[1], e); } });
+    try { seoTools(); } catch (e) {}
   }
   window.TessolTools = { boot: boot, calc: { dewFrom: dewFrom, rhFrom: rhFrom, frostFrom: frostFrom, heightsFor: heightsFor } };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
