@@ -22,7 +22,8 @@
         { k: 'out', n: '출력', o: [['RS', 'RS485 Modbus-RTU', '4선 · 8 ~ 32 VDC'], ['A', '4 ~ 20 mA', '2선 · 12 ~ 32 VDC'], ['B', '0 ~ 5 V', '3선'], ['C', '0 ~ 10 V', '3선'], ['D', '0.5 ~ 4.5 V', '3선'], ['X', '그 밖의 출력', '협의']] },
         { k: 'ec', n: '전기 연결', o: [['NC', '없음', '', 'cap'], ['E1', 'Raychem 케이블', '−55 ~ 120 °C · IP65', 'cable'], ['E2', 'Micro-DIN', '짝 플러그 포함 · IP65', 'din'], ['E3', 'M12×1 4핀', '짝 플러그 포함 · IP67', 'm12'], ['E4', 'MIL-C-26482 6핀', '−55 ~ 125 °C · IP67', 'mil'], ['E5', '폴리우레탄 케이블', '−40 ~ 85 °C · IP68', 'pu'], ['EX', '그 밖의 연결', '협의', 'x']] },
         { k: 'pc', n: '압력 연결', o: [['NC', '없음', '', 'none'], ['P1', 'G1/4 암나사', '', 'f'], ['P2', 'G1/4A 수나사', '', 'g'], ['P3', '1/4 NPT 암나사', '', 'f'], ['P4', '1/4 NPT 수나사', '', 'npt'], ['P5', '1/8 NPT 수나사', '', 'npt-s'], ['P6', 'G1/8A 수나사', '', 'g-s'], ['P7', 'M14×1.5 수나사', '', 'g'], ['P8', 'M12×1 수나사', '', 'g-s'], ['P9', 'M20×1.5 수나사', '', 'g-l'], ['P10', '1/4″-20 UNC 암나사', '', 'f-s'], ['P11', 'G1/2A 수나사', '', 'g-l'], ['P12', '1/8 VCR 수나사', '', 'vcr-s'], ['P13', '1/4 VCR 수나사', '', 'vcr'], ['P14', '1/2 NPT 수나사', '', 'npt-l'], ['PX', '그 밖의 연결', '협의', 'x']] },
-        { k: 'cert', n: '교정 성적서', o: [['C1', '5점 전 범위 압력 성적서'], ['C2', '5점 전 범위·전 온도 성적서'], ['C3', 'CNAS 성적서'], ['C4', 'EN 10204 성적서'], ['CX', '그 밖의 성적서', '협의']] }
+        { k: 'cert', n: '교정 성적서', o: [['C1', '5점 전 범위 압력 성적서'], ['C2', '5점 전 범위·전 온도 성적서'], ['C3', 'CNAS 성적서'], ['C4', 'EN 10204 성적서'], ['CX', '그 밖의 성적서', '협의']] },
+        { k: 'kolas', n: 'KOLAS 교정 (테솔, 선택)', opt: true, o: [['KOLAS', 'KOLAS 공인 교정 성적서', '(주)테솔이 KOLAS 인정 범위 안에서 교정하고 성적서를 발행합니다'], ['', '선택 안 함', '']] }
       ],
       strip: [['model', '모델'], ['type', '압력 종류'], ['acc', '정확도'], ['comp', '온도 보상'], ['out', '출력'], ['ec', '전기 연결'], ['pc', '압력 연결'], ['cert', '성적서'], ['range', '범위'], ['unit', '단위']],
       notes: ['몸체 φ19 × 44 mm, 하우징·다이어프램·압력 연결부 AISI 316L은 모든 모델에 공통입니다.', '전압 출력은 공급 전압이 출력 전압보다 3 V 이상 높아야 합니다.', '폴리우레탄 케이블(E5)은 IP68 용도입니다. 사용 환경을 요청 사항에 적어 주십시오.']
@@ -144,7 +145,7 @@
       else { var ca = rcode(a), cb = rcode(b); if (ca === null || cb === null) { r.bad = true; r.msg = '범위 값은 유효숫자 두 자리까지 모델명에 들어갑니다. 예: 2.5, 25, 250'; } else { r.code = ca + '-' + cb; r.msg = '범위 코드 <b>' + r.code + '</b> (' + esc(S.lo) + ' ~ ' + esc(S.hi) + ' ' + S.unit + ')'; } }
       return r;
     }
-    function done(k, R) { return k === 'type' ? !!(S.type && R.code) : !!S[k]; }
+    function done(k, R) { if (G[k].opt) return true; return k === 'type' ? !!(S.type && R.code) : !!S[k]; }
 
     function paint() {
       var R = range(), segs = {}, left = 0;
@@ -156,7 +157,7 @@
         var grp = (s === 'range' || s === 'unit') ? 'type' : s; b.classList.toggle('is-on', grp === open && s !== 'model');
       });
       var full = d.strip.map(function (s) { return segs[s[0]]; });
-      var ok = !left; w.__code = ok ? full.join('-') : '';
+      var ok = !left; w.__code = ok ? full.join('-') + (S.kolas ? ' & ' + S.kolas : '') : '';
       $('.tq-full').innerHTML = ok ? '주문 모델명 <strong>' + esc(w.__code) + '</strong>' : '고르지 않은 칸은 ·· 로 표시됩니다.';
       $('.tq-left').textContent = ok ? '구성 완료' : '남은 항목 ' + left + '개';
       d.groups.forEach(function (g) {
@@ -280,13 +281,14 @@
     function val(k) { var g = G[k], v = S[k]; if (!shown(g)) return ''; if (g.y === 'one') return v; if (g.y === 'dig') return (g.srt ? v.slice().sort() : v).join(''); if (g.y === 'many') return g.o.filter(function (o) { return v.indexOf(o[0]) > -1; }).map(function (o) { return o[0]; }); var out = []; g.o.forEach(function (o) { for (var n = 0; n < (v[o[0]] || 0); n++) out.push(o[0]); }); return out; }
     function sub(t) { return String(t || '').replace(/\{(\w+)\}/g, function (m, k) { var x = G[k] ? val(k) : ''; return Array.isArray(x) ? x.join('') : (x || '‥'); }); }
     function build() {
-      if (d.v) { var R = rows(); if (R.length === 1 && d.g.every(done)) return R[0][d.v.k.length] || ''; return ''; }
-      return (d.p || []).map(function (q) {
+      function part(q) {
         if (typeof q === 'string') return q;
         var x = val(q.g), g = G[q.g]; if (!shown(g)) return '';
         if (Array.isArray(x)) { if (!x.length) return g.r ? sub(q.pre) + '‥' : ''; return sub(q.pre) + x.join(sub(q.sep || '')) + sub(q.suf); }
         if (!x) return g.r || (g.y === 'dig') ? sub(q.pre) + '‥' + sub(q.suf) : ''; return sub(q.pre) + x + sub(q.suf);
-      }).join('');
+      }
+      if (d.v) { var R = rows(); if (R.length === 1 && d.g.every(done)) { var c0 = R[0][d.v.k.length] || ''; return c0 ? c0 + (d.va || []).map(part).join('') : ''; } return ''; }
+      return (d.p || []).map(part).join('');
     }
     function photo() {
       var f = '';
