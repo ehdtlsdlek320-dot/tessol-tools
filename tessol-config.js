@@ -215,6 +215,7 @@
     '.tq-qty{display:inline-flex;align-items:center;border:1px solid var(--line);background:#fff}.tq-qty button{width:30px;height:30px;font-size:16px!important;color:var(--navy)!important}.tq-qty button[disabled]{color:#c4c7cc!important;cursor:not-allowed}.tq-qty output{min-width:26px;text-align:center;font-variant-numeric:tabular-nums;font-weight:700}',
     '.tq-dig{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}.tq-dig label{font-size:12px;color:var(--sub)}.tq-dig select{width:100%;height:40px;border:1px solid var(--line);border-radius:0;background:#fff;font:inherit;font-size:14px;padding:0 6px;margin-top:3px}',
     '.tq2 .tq-cap div{grid-template-columns:1fr;gap:0;margin-bottom:7px}.tq2 .tq-cap dd{font-weight:500}.tq-none{color:var(--sub)}.tq-g.is-hide{display:none}',
+    '@media(min-width:761px){.tq2 .tq-op{grid-template-columns:18px minmax(52px,auto) 1fr;row-gap:2px}.tq2 .tq-op.has-im{grid-template-columns:18px 46px minmax(52px,auto) 1fr}.tq2 .tq-op>*{grid-row:1/span 2}.tq2 .tq-op .n{grid-row:1;align-self:end}.tq2 .tq-op .s{grid-row:2;grid-column:-2;text-align:left;align-self:start}.tq2 .tq-op .s:empty{display:none}.tq2 .tq-op .s:empty~*,.tq2 .tq-op.no-s .n{grid-row:1/span 2;align-self:center}.tq2 .tq-ops.is-wide .tq-op .s{margin-top:0}}',
     '@media(max-width:760px){.tq2 .tq-fig-in{display:block}.tq-photo{max-width:180px}.tq-op.has-im{grid-template-columns:18px 40px 1fr}.tq-op.has-im code{grid-column:3}.tq-op.has-im .im{grid-row:1/span 2;grid-column:2;width:40px;height:40px}.tq-op.has-im .n,.tq-op.has-im .s{grid-column:3}.tq-dig{grid-template-columns:repeat(2,1fr)}}'
   ].join('');
 
@@ -354,14 +355,15 @@
     var key = location.pathname.split('/').filter(Boolean).pop() || '';
     Array.prototype.forEach.call(document.querySelectorAll('p, div.ce-paragraph'), function (p) {
       var m = (p.textContent || '').trim().match(/^\[\[TESSOL-TOOL:config(?::([a-z0-9-]+))?\]\]$/i);
-      if (!m) return; var k = (m[1] || key).toLowerCase(), d = CFG[k];
+      if (!m || p.getAttribute('data-tq')) return; p.setAttribute('data-tq', '1'); var k = (m[1] || key).toLowerCase(), d = CFG[k];
       if (d) { render(p, d); return; }
       p.style.display = 'none';
       fetch(IMG + '/d/' + k + '.json').then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (j) {
         if (!document.getElementById('tq-css')) { var st = document.createElement('style'); st.id = 'tq-css'; st.textContent = CSS + CSS2; document.head.appendChild(st); }
         j.k = k; p.style.display = ''; render2(p, j);
-      }).catch(function () {});
+      }).catch(function () { p.removeAttribute('data-tq'); });
     });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+  window.addEventListener('load', boot); window.addEventListener('pageshow', boot); var bn = 0; (function rb() { boot(); if (++bn < 16) setTimeout(rb, 750); })();
 })();
