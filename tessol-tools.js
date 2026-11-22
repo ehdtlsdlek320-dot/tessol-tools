@@ -1,9 +1,9 @@
-/* (주)테솔 실무 계산 도구 v1.2 — 2026-11-22
+/* (주)테솔 실무 계산 도구 v1.3 — 2026-11-22
    페이지 본문의 문단 [[TESSOL-TOOL:이름]] 자리에 계산기를 그립니다.
    이름: dewpoint, mapping, mkt, tur, mapcheck, regcheck */
 (function () {
   'use strict';
-  if (window.__TESSOL_TOOLS) return; window.__TESSOL_TOOLS = 'v1.2';
+  if (window.__TESSOL_TOOLS) return; window.__TESSOL_TOOLS = 'v1.3';
 
   var P = function (u) { return u; };
   var REC = {
@@ -45,76 +45,75 @@
     ]
   };
 
-  var CSS = '.tt{--tt-ink:#16202b;--tt-sub:#5d6874;--tt-line:#dbe1e8;--tt-soft:#f4f7fa;--tt-acc:#1a6fd1;--tt-dark:#154670;font-family:"Noto Sans KR","Apple SD Gothic Neo",sans-serif;color:var(--tt-ink);border:1px solid var(--tt-line);border-radius:14px;overflow:hidden;background:#fff;margin:24px 0 !important;max-width:100%;box-shadow:0 1px 2px rgba(16,32,48,.04),0 8px 24px rgba(16,32,48,.06);font-size:15px;line-height:1.5}'
-    + '.tt *{box-sizing:border-box}.tt .tt-hd{background:var(--tt-dark);color:#fff;padding:14px 22px;font-size:16px;font-weight:700;letter-spacing:-.01em;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}.tt .tt-hd small{font-weight:400;color:#b9cde3;font-size:12.5px}'
-    + '.tt .tt-bd{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:0}.tt .tt-in{padding:22px}.tt .tt-out{padding:22px 24px;background:var(--tt-soft);border-left:1px solid var(--tt-line)}'
-    + '@media(max-width:760px){.tt .tt-bd{grid-template-columns:1fr}.tt .tt-out{border-left:0;border-top:1px solid var(--tt-line)}.tt .tt-in,.tt .tt-out{padding:18px 16px}.tt .tt-hd{padding:13px 16px}}'
-    + '.tt label{display:block;font-size:13.5px;font-weight:600;margin:0 0 6px;color:var(--tt-ink)}.tt .tt-f{margin-bottom:16px}.tt .tt-f:last-child{margin-bottom:0}.tt .tt-row{display:flex;gap:8px;align-items:center}'
-    + '.tt input[type=number],.tt select,.tt textarea{width:100%;font:inherit;font-size:16px;height:44px;padding:0 12px;border:1px solid #cdd5de;background:#fff;color:var(--tt-ink);border-radius:8px;font-variant-numeric:tabular-nums;transition:border-color .15s,box-shadow .15s}.tt select{padding-right:28px}.tt textarea{height:auto;min-height:160px;padding:10px 12px;font-family:Consolas,monospace;font-size:13px;line-height:1.5}'
-    + '.tt input:hover,.tt select:hover,.tt textarea:hover{border-color:#9fb0c2}.tt input:focus,.tt select:focus,.tt textarea:focus{outline:0;border-color:var(--tt-acc);box-shadow:0 0 0 3px rgba(26,111,209,.18)}.tt .tt-u{font-size:13.5px;color:var(--tt-sub);white-space:nowrap;min-width:38px}'
-    + '.tt .tt-seg{display:flex;gap:4px;padding:4px;background:#eef2f6;border-radius:10px}.tt .tt-seg button{flex:1;font:inherit;font-size:14px;padding:9px 8px;border:0;border-radius:7px;background:transparent;cursor:pointer;color:var(--tt-sub);font-weight:500}.tt .tt-seg button[aria-pressed=true]{background:#fff;color:var(--tt-dark);font-weight:700;box-shadow:0 1px 3px rgba(16,32,48,.15)}'
-    + '.tt .tt-big{font-family:"Space Grotesk",Roboto,sans-serif;font-size:44px;font-weight:700;line-height:1.1;letter-spacing:-.02em;color:var(--tt-dark);font-variant-numeric:tabular-nums}.tt .tt-big small{font-size:18px;font-weight:500;margin-left:6px;color:var(--tt-sub)}.tt .tt-lab{font-size:13px;font-weight:600;color:var(--tt-sub);margin-bottom:6px}'
-    + '.tt .tt-kv{display:grid;grid-template-columns:1fr auto;gap:0;font-size:14px;margin-top:16px;border-top:1px solid var(--tt-line)}.tt .tt-kv>*{padding:8px 0;border-bottom:1px solid #e6ebf0}.tt .tt-kv span{color:var(--tt-sub)}.tt .tt-kv b{font-variant-numeric:tabular-nums;text-align:right;font-weight:700;padding-left:12px}'
-    + '.tt p.tt-note,.tt .tt-note{font-size:13px !important;color:var(--tt-sub) !important;line-height:1.65 !important;margin:14px 0 0 !important;font-weight:400 !important;letter-spacing:0 !important}.tt .tt-note.tt-warn{color:#9a5b00 !important}.tt .tt-note.tt-bad{color:#b3261e !important}'
-    + '.tt .tt-flag{display:inline-block;font-size:13px;font-weight:700;padding:4px 10px;margin-top:12px;border-radius:999px;border:0}.tt .tt-ok{color:#11683b;background:#e3f4ea}.tt .tt-warn{color:#8a5200;background:#fdf0d9}.tt .tt-bad{color:#a5221a;background:#fbe4e2}.tt p.tt-ok,.tt p.tt-warn,.tt p.tt-bad{background:none}'
-    + '.tt .tt-rec{border-top:1px solid var(--tt-line);padding:16px 22px 18px;background:#fff}.tt .tt-rec h4{font-size:13.5px !important;margin:0 0 10px !important;font-weight:700;color:var(--tt-ink)}.tt .tt-rec ul{list-style:none !important;margin:0 !important;padding:0 !important;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}'
-    + '.tt .tt-rec li{list-style:none !important;margin:0 !important;padding:10px 12px !important;font-size:14px !important;line-height:1.4 !important;border:1px solid #e3e8ee;border-radius:10px;position:relative;transition:border-color .15s,background .15s}.tt .tt-rec li::before,.tt .tt-rec li::marker{content:none !important;display:none !important}.tt .tt-rec li:hover{border-color:var(--tt-acc);background:#f7faff}'
-    + '.tt .tt-rec a{color:var(--tt-ink) !important;text-decoration:none !important;font-weight:600;padding:0 !important;margin:0 !important;display:inline}.tt .tt-rec a::after{content:"";position:absolute;inset:0}.tt .tt-rec span{color:var(--tt-sub);font-size:12.5px;display:block;margin-top:2px}@media(max-width:760px){.tt .tt-rec{padding:14px 16px}}'
-    + '.tt table{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px}.tt th,.tt td{border-bottom:1px solid var(--tt-line);padding:7px 4px;text-align:left}.tt td.n{text-align:right;font-variant-numeric:tabular-nums}'
-    + '.tt .tt-ck li{list-style:none !important;margin:0 0 6px !important;padding:0 !important;font-size:14px !important;line-height:1.5 !important}.tt .tt-ck li::before,.tt .tt-ck li::marker{content:none !important;display:none !important}.tt .tt-ck ul{padding:0 !important;margin:0 0 14px !important}.tt .tt-ck h5{font-size:13.5px;margin:14px 0 8px;font-weight:700}'
-    + '.tt .tt-ck label{font-weight:400;display:flex;gap:10px;margin:0;cursor:pointer;padding:8px 10px;border-radius:8px}.tt .tt-ck label:hover{background:var(--tt-soft)}.tt .tt-ck input{margin-top:3px;flex:none;width:17px;height:17px;accent-color:var(--tt-dark)}.tt input[type=checkbox]{accent-color:var(--tt-dark)}'
-    + '.tt .tt-bar{height:8px;background:#e1e7ee;margin-top:12px;border-radius:999px;overflow:hidden}.tt .tt-bar i{display:block;height:100%;background:var(--tt-acc);border-radius:999px}.tt .tt-btn{font:inherit;font-size:13.5px;font-weight:600;padding:9px 14px;border:1px solid var(--tt-dark);border-radius:8px;color:var(--tt-dark);background:#fff;cursor:pointer;margin:10px 8px 0 0}.tt .tt-btn:hover{background:var(--tt-dark);color:#fff}';
+  var CSS = '.tt{--tt-ink:#0a0a0a;--tt-sub:#5b5b5f;--tt-line:#d1d1d1;--tt-soft:#f5f5f5;--tt-acc:#154670;--tt-dark:#154670;font-family:inherit;color:var(--tt-ink);border:1px solid var(--tt-line);background:#fff;margin:24px 0 !important;max-width:100%;font-size:15px;line-height:1.5}'
+    + '.tt *{box-sizing:border-box}.tt .tt-hd{background:var(--tt-dark);color:#fff;padding:13px 20px;font-size:16px;font-weight:700;display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 12px}.tt .tt-hd small{font-weight:400;color:#c8d3de;font-size:12.5px}'
+    + '.tt .tt-bd{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.tt .tt-in{padding:20px}.tt .tt-out{padding:20px 22px;background:var(--tt-soft);border-left:1px solid var(--tt-line)}'
+    + '@media(max-width:760px){.tt .tt-bd{grid-template-columns:1fr}.tt .tt-out{border-left:0;border-top:1px solid var(--tt-line)}.tt .tt-in,.tt .tt-out{padding:16px}.tt .tt-hd{padding:12px 16px}}'
+    + '.tt label{display:block;font-size:13.5px;font-weight:700;margin:0 0 6px}.tt .tt-f{margin-bottom:14px}.tt .tt-f:last-child{margin-bottom:0}.tt .tt-row{display:flex;gap:8px;align-items:center}'
+    + '.tt input[type=number],.tt select,.tt textarea{width:100%;font:inherit;font-size:16px;height:42px;padding:0 10px;border:1px solid var(--tt-line);background:#fff;color:var(--tt-ink);border-radius:0;font-variant-numeric:tabular-nums}.tt textarea{height:auto;min-height:150px;padding:8px 10px;font-family:Consolas,monospace;font-size:13px}'
+    + '.tt input:focus,.tt select:focus,.tt textarea:focus{outline:2px solid var(--tt-dark);outline-offset:-2px}.tt .tt-u{font-size:13.5px;color:var(--tt-sub);white-space:nowrap;min-width:36px}'
+    + '.tt .tt-seg{display:flex;border:1px solid var(--tt-line)}.tt .tt-seg button{flex:1;font:inherit;font-size:14px;padding:9px 8px;border:0;border-radius:0;background:#fff;cursor:pointer;color:var(--tt-sub)}.tt .tt-seg button+button{border-left:1px solid var(--tt-line)}.tt .tt-seg button[aria-pressed=true]{background:var(--tt-dark);color:#fff;font-weight:700}'
+    + '.tt .tt-big{font-size:40px;font-weight:700;line-height:1.15;letter-spacing:-.02em;font-variant-numeric:tabular-nums}.tt .tt-big small{font-size:17px;font-weight:400;margin-left:6px;color:var(--tt-sub)}.tt .tt-lab{font-size:13px;color:var(--tt-sub);margin-bottom:4px}'
+    + '.tt .tt-kv{display:grid;grid-template-columns:1fr auto;font-size:14px;margin-top:14px;border-top:1px solid var(--tt-line)}.tt .tt-kv>*{padding:7px 0;border-bottom:1px solid #e4e4e4}.tt .tt-kv span{color:var(--tt-sub)}.tt .tt-kv b{font-variant-numeric:tabular-nums;text-align:right;padding-left:12px}'
+    + '.tt p.tt-note,.tt .tt-note{font-size:13px !important;color:var(--tt-sub) !important;line-height:1.65 !important;margin:12px 0 0 !important;font-weight:400 !important;letter-spacing:0 !important}'
+    + '.tt .tt-flag{display:inline-block;font-size:13px;font-weight:700;padding:3px 8px;margin-top:10px;border:1px solid currentColor}.tt .tt-ok{color:#1d7a46 !important}.tt .tt-warn{color:#9a5b00 !important}.tt .tt-bad{color:#b3261e !important}'
+    + '.tt .tt-rec{border-top:1px solid var(--tt-line);padding:14px 20px 16px}.tt .tt-rec h4{font-size:13.5px !important;margin:0 0 8px !important;font-weight:700}.tt .tt-rec ul{list-style:none !important;margin:0 !important;padding:0 !important;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px 20px}'
+    + '.tt .tt-rec li{list-style:none !important;margin:0 !important;padding:0 !important;font-size:14px !important;line-height:1.45 !important}.tt .tt-rec li::before,.tt .tt-rec li::marker{content:none !important;display:none !important}'
+    + '.tt .tt-rec a{color:var(--tt-ink) !important;text-decoration:underline !important;text-underline-offset:3px;padding:0 !important;margin:0 !important}.tt .tt-rec a:hover{color:var(--tt-dark) !important}.tt .tt-rec span{color:var(--tt-sub);font-size:12.5px;display:block}@media(max-width:760px){.tt .tt-rec{padding:14px 16px}}'
+    + '.tt table{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px}.tt th,.tt td{border-bottom:1px solid var(--tt-line);padding:6px 4px;text-align:left}.tt td.n{text-align:right;font-variant-numeric:tabular-nums}'
+    + '.tt .tt-ck li{list-style:none !important;margin:0 0 8px !important;padding:0 !important;font-size:14px !important;line-height:1.5 !important}.tt .tt-ck li::before,.tt .tt-ck li::marker{content:none !important;display:none !important}.tt .tt-ck ul{padding:0 !important;margin:0 0 14px !important}.tt .tt-ck h5{font-size:13.5px;margin:14px 0 8px;font-weight:700}'
+    + '.tt .tt-ck label{font-weight:400;display:flex;gap:8px;margin:0;cursor:pointer}.tt .tt-ck input{margin-top:4px;flex:none}.tt input[type=checkbox]{accent-color:var(--tt-dark)}'
+    + '.tt .tt-bar{height:6px;background:#e3e3e3;margin-top:10px}.tt .tt-bar i{display:block;height:100%;background:var(--tt-dark)}.tt .tt-btn{font:inherit;font-size:13.5px;padding:8px 14px;border:1px solid var(--tt-ink);border-radius:0;color:var(--tt-ink);background:#fff;cursor:pointer;margin:10px 8px 0 0}.tt .tt-btn:hover{background:var(--tt-ink);color:#fff}';
 
-  /* /tools/ 페이지 배치: 히어로 축소, 도구 이동 탭, 모음 페이지 카드 */
-  var LAY = 'html.tt-page .editorjs-content .tessol-hero{display:flex !important;align-items:center !important;min-height:0 !important;height:auto !important;grid-template-columns:none !important;border-radius:14px !important;overflow:hidden !important;background:linear-gradient(100deg,#174a77 0%,#0f365f 55%,#08264d 100%) !important;aspect-ratio:auto !important}'
-    + 'html.tt-page .editorjs-content .tessol-hero__media{position:absolute !important;inset:0 0 0 auto !important;width:48% !important;height:100% !important;opacity:.6;-webkit-mask-image:linear-gradient(90deg,transparent,#000 50%);mask-image:linear-gradient(90deg,transparent,#000 50%)}'
-    + 'html.tt-page .editorjs-content .tessol-hero__media img{position:absolute !important;inset:0 !important;width:100% !important;height:100% !important;object-fit:cover !important}html.tt-page .editorjs-content .tessol-hero__overlay{display:none !important}'
-    + 'html.tt-page .editorjs-content .tessol-hero__copy{position:relative !important;width:100% !important;height:auto !important;min-height:0 !important;padding:26px 40px 28px !important;background:none !important;display:block !important;grid-column:auto !important}html.tt-page .editorjs-content .tessol-hero__copy::before,html.tt-page .editorjs-content .tessol-hero__copy::after,html.tt-page .editorjs-content .tessol-hero::before,html.tt-page .editorjs-content .tessol-hero::after{display:none !important}'
-    + 'html.tt-page .editorjs-content .tessol-hero .tessol-hero__title{font-size:34px !important;line-height:1.3 !important;font-weight:700 !important;letter-spacing:-.02em !important;margin:6px 0 8px !important;padding:0 !important;color:#fff !important;max-width:760px}'
-    + 'html.tt-page .editorjs-content .tessol-hero .tessol-hero__sub{font-size:16px !important;line-height:1.6 !important;font-weight:400 !important;margin:0 !important;color:#d5e3f1 !important;max-width:640px !important;width:auto !important;white-space:normal !important}html.tt-page .tessol-hero__sub br{display:none}'
-    + 'html.tt-page .tt-eyebrow{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;letter-spacing:.02em;color:#9cc6f0 !important;text-decoration:none !important}html.tt-page a.tt-eyebrow:hover{color:#fff !important}'
-    + 'html.tt-page .editorjs-content--sections>.tessol-section:first-child+.tessol-section{margin-top:20px !important}'
-    + 'html.tt-page .editorjs-content--sections>.tessol-section:first-child+.tessol-section>.container>p:first-child{font-size:17px !important;line-height:1.75 !important;font-weight:400 !important;color:#3a4652 !important;letter-spacing:-.005em !important;max-width:1040px;margin:0 !important}'
+  /* /tools/ 페이지 배치: 배너 히어로 대신 사이트 기본 하위 페이지 머리(경로 + 제목), 도구 이동 메뉴, 모음 페이지 목록 */
+  var LAY = ''
+    + 'html.tt-page .page-builder-view{padding-top:0 !important}.tt-head{padding-top:140px}.tt-bc{display:flex;flex-wrap:wrap;align-items:center;gap:4px;list-style:none;margin:0;padding:14px 0}.tt-bc li{display:flex;align-items:center;margin:0;padding:0;font-size:16px;line-height:24px;color:#394147}.tt-bc li::before{content:none}'
+    + '.tt-bc a,.tt-bc span{color:#394147;text-decoration:none;padding:6px 0}.tt-bc a:hover{text-decoration:underline}.tt-bc__home{display:flex;align-items:center;gap:2px}.tt-bc__home img,.tt-bc__sep img{display:block;width:12px;height:12px}.tt-bc__home span{padding:0}.tt-bc__sep{width:16px;justify-content:center}'
+    + '.tt-title{margin:0 0 14px;padding:0;font-size:43px;font-weight:700;line-height:1.3;color:#131313}.tt-sub{margin:0;font-size:17px;line-height:1.7;color:#394147}'
+    + '@media(max-width:1024px){.tt-head{padding-top:16px}.tt-title{font-size:28px;margin-bottom:10px}.tt-sub{font-size:15px}.tt-bc li{font-size:14px}}'
+    + 'html.tt-page .tt-nohero>.tessol-section:first-child{margin-top:0 !important}'
+    + 'html.tt-page .tt-nohero>.tessol-section:first-child>.container>p:first-of-type{font-size:17px !important;line-height:1.75 !important;font-weight:400 !important;margin:0 !important}'
     + 'html.tt-page .editorjs-content .ej-heading--e2{margin-top:88px !important}html.tt-page .editorjs-content .tt+.ej-heading--e2{margin-top:72px !important}'
-    + '.tt-nav{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0 !important;padding:0;list-style:none}.tt-nav a{display:inline-flex;align-items:center;height:36px;padding:0 14px;border:1px solid #d3dbe4;border-radius:999px;font-size:14px;font-weight:500;color:#33404d !important;text-decoration:none !important;background:#fff;white-space:nowrap;transition:border-color .15s,color .15s}'
-    + '.tt-nav a:hover{border-color:#154670;color:#154670 !important}.tt-nav a[aria-current=page]{background:#154670;border-color:#154670;color:#fff !important;font-weight:700}.tt-nav a.tt-all{color:#5d6874 !important}'
-    + '.tt-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:24px 0 8px !important}.tt-card{position:relative;display:flex;flex-direction:column;padding:22px 22px 20px;border:1px solid #dbe1e8;border-radius:14px;background:#fff;transition:border-color .15s,box-shadow .15s,transform .15s}'
-    + '.tt-card:hover{border-color:#154670;box-shadow:0 10px 28px rgba(16,32,48,.10);transform:translateY(-2px)}.tt-card__tag{align-self:flex-start;font-size:12px;font-weight:700;color:#154670;background:#e8f0f8;border-radius:999px;padding:3px 10px;margin-bottom:12px}.tt-card__tag.is-ck{color:#11683b;background:#e3f4ea}'
-    + 'html.tt-page .editorjs-content .tt-card h2.ej-heading{font-size:20px !important;line-height:1.4 !important;margin:0 0 8px !important;padding:0 !important;font-weight:700 !important;letter-spacing:-.01em !important;color:#16202b !important}'
-    + 'html.tt-page .editorjs-content .tt-card p{font-size:14.5px !important;line-height:1.65 !important;color:#5d6874 !important;margin:0 !important;flex:1;display:flex;flex-direction:column}'
-    + 'html.tt-page .editorjs-content .tt-card p a{margin-top:auto;padding-top:16px;font-size:14px;font-weight:700;color:#1a6fd1 !important;text-decoration:none !important}.tt-card p a::after{content:"";position:absolute;inset:0;border-radius:14px}'
-    + '@media(max-width:1024px){.tt-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}'
-    + '@media(max-width:760px){html.tt-page .page-builder-view{padding-top:12px !important}html.tt-page .editorjs-content .tessol-hero__copy{padding:20px 20px 22px !important}html.tt-page .editorjs-content .tessol-hero .tessol-hero__title{font-size:24px !important;margin:4px 0 6px !important}html.tt-page .editorjs-content .tessol-hero .tessol-hero__sub{font-size:14px !important}'
-    + 'html.tt-page .editorjs-content .tessol-hero__media{width:70% !important;opacity:.35}html.tt-page .editorjs-content--sections>.tessol-section:first-child+.tessol-section{margin-top:14px !important}html.tt-page .editorjs-content--sections>.tessol-section:first-child+.tessol-section>.container>p:first-child{font-size:15.5px !important;line-height:1.7 !important}'
-    + '.tt-nav{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;margin:12px -16px 0 !important;padding:0 16px}.tt-nav::-webkit-scrollbar{display:none}.tt-nav a{height:34px;font-size:13.5px;padding:0 12px}.tt-cards{grid-template-columns:1fr;gap:10px;margin:16px 0 8px !important}.tt-card{padding:14px 16px}.tt-card__tag{margin-bottom:8px}html.tt-page .editorjs-content .tt-card p{font-size:14px !important}html.tt-page .editorjs-content .tt-card p a{padding-top:10px}'
-    + 'html.tt-page .editorjs-content .tt-card h2.ej-heading{font-size:17px !important}html.tt-page .editorjs-content .ej-heading--e2{margin-top:56px !important}}';
-  var LIST = [['dew-point-calculator', '노점·상대습도'], ['temperature-mapping-sensor-calculator', '매핑 센서 개수'], ['mkt-calculator', 'MKT'], ['tur-calculator', 'TUR'], ['temperature-mapping-checklist', '매핑 준비 점검표'], ['temperature-regulation-checklist', '규정별 점검표']];
+    + '.tt-nav{display:flex;gap:0 28px;margin:36px 0 0 !important;padding:0;border-bottom:1px solid #d1d1d1;overflow-x:auto;scrollbar-width:none}.tt-nav::-webkit-scrollbar{display:none}'
+    + '.tt-nav a{display:block;padding:12px 0 11px;font-size:15px;color:#5b5b5f !important;text-decoration:none !important;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}.tt-nav a:hover{color:#0a0a0a !important}.tt-nav a[aria-current=page]{color:#154670 !important;font-weight:700;border-bottom-color:#154670}'
+    + '.tt-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 40px;margin:28px 0 0 !important;border-top:1px solid #0a0a0a}'
+    + '.tt-item{padding:22px 0 24px;border-bottom:1px solid #d1d1d1}'
+    + 'html.tt-page .editorjs-content .tt-item h2.ej-heading{font-size:20px !important;line-height:1.4 !important;margin:0 0 6px !important;padding:0 !important;font-weight:700 !important}'
+    + 'html.tt-page .editorjs-content .tt-item p{font-size:15px !important;line-height:1.7 !important;color:#5b5b5f !important;margin:0 !important}'
+    + 'html.tt-page .editorjs-content .tt-item p a{display:inline-block;margin-top:8px;font-size:14.5px;color:#154670 !important;text-decoration:underline !important;text-underline-offset:3px}'
+    + '@media(max-width:760px){html.tt-page .tt-nohero>.tessol-section:first-child>.container>p:first-of-type{font-size:15.5px !important;line-height:1.7 !important}'
+    + '.tt-nav{gap:0 20px;margin:24px 0 0 !important}.tt-nav a{font-size:14px;padding:11px 0 10px}.tt-list{grid-template-columns:1fr;margin-top:18px !important}.tt-item{padding:16px 0 18px}'
+    + 'html.tt-page .editorjs-content .tt-item h2.ej-heading{font-size:17px !important}html.tt-page .editorjs-content .tt-item p{font-size:14px !important}html.tt-page .editorjs-content .ej-heading--e2{margin-top:56px !important}}';
+  var LIST = [['calculators', '전체'], ['dew-point-calculator', '노점·상대습도'], ['temperature-mapping-sensor-calculator', '매핑 센서 개수'], ['mkt-calculator', 'MKT'], ['tur-calculator', 'TUR'], ['temperature-mapping-checklist', '매핑 준비 점검표'], ['temperature-regulation-checklist', '규정별 점검표']];
+  function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function layout() {
     if (!/^\/tools\//.test(location.pathname) || document.documentElement.classList.contains('tt-page')) return;
     var hub = /\/tools\/calculators\/?$/.test(location.pathname), here = location.pathname.replace(/\/$/, '').split('/').pop();
+    var hero = document.querySelector('.editorjs-content--sections > .tessol-section:first-child .tessol-hero');
+    if (!hero) return;
     document.documentElement.classList.add('tt-page');
     if (!document.getElementById('tt-lay')) { var s = document.createElement('style'); s.id = 'tt-lay'; s.textContent = LAY; document.head.appendChild(s); }
-    var hero = document.querySelector('.tessol-hero'), copy = hero && hero.querySelector('.tessol-hero__copy');
-    if (copy && !copy.querySelector('.tt-eyebrow')) copy.insertBefore(el(hub ? '<span class="tt-eyebrow">TESSOL 실무 도구 · 무료</span>' : '<a class="tt-eyebrow" href="/tools/calculators">← 실무 계산 도구</a>'), copy.firstChild);
-    if (hero && !document.querySelector('.tt-nav')) {
-      var nav = el('<nav class="tt-nav" aria-label="실무 계산 도구">' + (hub ? '' : '<a class="tt-all" href="/tools/calculators">전체 도구</a>')
-        + LIST.map(function (x) { return '<a href="/tools/' + x[0] + '"' + (x[0] === here ? ' aria-current="page"' : '') + '>' + x[1] + '</a>'; }).join('') + '</nav>');
-      if (!hub) hero.parentNode.insertBefore(nav, hero.nextSibling);
-    }
+    var ht = hero.querySelector('.tessol-hero__title'), hs = hero.querySelector('.tessol-hero__sub');
+    var title = (ht ? ht.textContent : document.title).replace(/[⁠⁣]/g, '').trim(), sub = hs ? hs.textContent.replace(/[⁠⁣]/g, '').trim() : '';
+    var sep = '<li class="tt-bc__sep" aria-hidden="true"><img src="/assets/images/icons/breadcrumb-chevron.svg" alt="" width="12" height="12"></li>';
+    var head = el('<div class="tt-head"><div class="container"><nav aria-label="현재 위치"><ol class="tt-bc">'
+      + '<li><a class="tt-bc__home" href="/"><img src="/assets/images/icons/breadcrumb-home.svg" alt="" width="12" height="12" aria-hidden="true"><span>홈</span></a></li>' + sep
+      + (hub ? '<li><span aria-current="page">실무 계산 도구</span></li>'
+        : '<li><a href="/tools/calculators">실무 계산 도구</a></li>' + sep + '<li><span aria-current="page">' + esc(title) + '</span></li>')
+      + '</ol></nav><h1 class="tt-title">' + esc(title) + '</h1>' + (sub ? '<p class="tt-sub">' + esc(sub) + '</p>' : '')
+      + '<nav class="tt-nav" aria-label="실무 계산 도구">' + LIST.map(function (x) { return '<a href="/tools/' + x[0] + '"' + (x[0] === here ? ' aria-current="page"' : '') + '>' + x[1] + '</a>'; }).join('') + '</nav></div></div>');
+    var heroSec = hero.closest('.tessol-section'), root = heroSec.parentNode;
+    var pb = root.closest('.page-builder-view') || root.parentNode; pb.insertBefore(head, pb.firstChild);
+    root.removeChild(heroSec); root.classList.add('tt-nohero');
     if (hub) {
-      var hs = Array.prototype.filter.call(document.querySelectorAll('.editorjs-content h2.ej-heading'), function (h) {
+      var hs2 = Array.prototype.filter.call(document.querySelectorAll('.editorjs-content h2.ej-heading'), function (h) {
         var p = h.nextElementSibling; return p && p.tagName === 'P' && p.querySelector('a[href^="/tools/"]');
       });
-      if (!hs.length) return;
-      var grid = el('<div class="tt-cards"></div>'); hs[0].parentNode.insertBefore(grid, hs[0]);
-      hs.forEach(function (h) {
-        var p = h.nextElementSibling, ck = /점검표/.test(h.textContent), a = p.querySelector('a[href^="/tools/"]');
-        var c = el('<article class="tt-card' + (ck ? ' is-ck' : '') + '"><span class="tt-card__tag' + (ck ? ' is-ck' : '') + '">' + (ck ? '점검표' : '계산기') + '</span></article>');
-        c.appendChild(h); c.appendChild(p); if (a) a.classList.add('tt-go'); grid.appendChild(c);
-      });
+      if (!hs2.length) return;
+      var grid = el('<div class="tt-list"></div>'); hs2[0].parentNode.insertBefore(grid, hs2[0]);
+      hs2.forEach(function (h) { var p = h.nextElementSibling, c = el('<div class="tt-item"></div>'); c.appendChild(h); c.appendChild(p); grid.appendChild(c); });
     }
   }
-
   function el(h) { var d = document.createElement('div'); d.innerHTML = h.trim(); return d.firstChild; }
   function f(x, d) { return isFinite(x) ? x.toLocaleString('ko-KR', { minimumFractionDigits: d, maximumFractionDigits: d }) : '–'; }
   function num(v) { var x = parseFloat(String(v).replace(',', '.')); return isFinite(x) ? x : NaN; }
@@ -379,7 +378,7 @@
 
   function seoTools() {
     if (!/^\/tools\//.test(location.pathname)) return;
-    var t = document.querySelector('.tessol-hero__title');
+    var t = document.querySelector('.tt-head h1') || document.querySelector('.tessol-hero__title');
     if (t && !document.querySelector('h1')) { var h1 = document.createElement('h1'); h1.className = t.className; h1.innerHTML = t.innerHTML; t.parentNode.replaceChild(h1, t); }
     var name = (t ? t.textContent : document.title).replace(/⁠/g, '').trim(), url = location.origin + location.pathname, ld = [];
     var qs = document.querySelectorAll('.tessol-faq .faq-item');
