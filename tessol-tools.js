@@ -3,7 +3,7 @@
    이름: dewpoint, mapping, mkt, tur, mapcheck, regcheck */
 (function () {
   'use strict';
-  if (window.__TESSOL_TOOLS) return; window.__TESSOL_TOOLS = 'v1.3';
+  if (window.__TESSOL_TOOLS) return; window.__TESSOL_TOOLS = 'v1.4';
 
   var P = function (u) { return u; };
   var REC = {
@@ -376,7 +376,40 @@
   }
 
 
+  var PPL = {
+    seol: { '@type': 'Person', name: '설대환', jobTitle: '교정사업부 기술책임자(차장)', worksFor: { '@id': 'https://www.tessol.com/#organization' } },
+    yang: { '@type': 'Person', name: '양도현', jobTitle: '밸리데이션사업부 팀장(차장)', worksFor: { '@id': 'https://www.tessol.com/#organization' } },
+    kim: { '@type': 'Person', name: '김동신', jobTitle: '계측기사업부 과장·마케팅팀 팀장', worksFor: { '@id': 'https://www.tessol.com/#organization' } }
+  };
+  var REVBY = { 'dew-point-calculator': 'seol', 'tur-calculator': 'seol', 'temperature-mapping-sensor-calculator': 'yang', 'temperature-mapping-checklist': 'yang', 'temperature-regulation-checklist': 'yang', 'mkt-calculator': 'kim' };
+  function faqLd() {
+    var qs = document.querySelectorAll('.tessol-faq .faq-item');
+    if (!qs.length) return null;
+    return { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: Array.prototype.map.call(qs, function (li) {
+      var qn = li.querySelector('.faq-item__subject'), an = li.querySelector('.faq-item__answer');
+      return { '@type': 'Question', name: qn ? qn.textContent.replace(/\u2060/g, '').trim() : '', acceptedAnswer: { '@type': 'Answer', text: an ? an.textContent.replace(/\u2060/g, '').replace(/^\s*A\.\s*/, '').trim() : '' } };
+    }) };
+  }
+  function addLd(ld) { ld.forEach(function (o) { if (!o) return; var sc = document.createElement('script'); sc.type = 'application/ld+json'; sc.textContent = JSON.stringify(o); document.head.appendChild(sc); }); }
+  function seoReport() {
+    if (!/^\/report\//.test(location.pathname) || document.getElementById('tt-report-ld')) return;
+    var t = document.querySelector('.editorjs-content h1, .editorjs-content h2');
+    if (t && !document.querySelector('h1')) { var h1 = document.createElement('h1'); h1.className = t.className; h1.innerHTML = t.innerHTML; t.parentNode.replaceChild(h1, t); t = h1; }
+    var name = (t ? t.textContent : document.title).replace(/\u2060/g, '').trim(), url = location.origin + location.pathname;
+    var m = name.match(/(20\d\d)/), yr = m ? m[1] : '';
+    var art = { '@context': 'https://schema.org', '@type': 'Article', headline: name, url: url, mainEntityOfPage: url, inLanguage: 'ko-KR',
+      description: (document.querySelector('meta[name=description]') || {}).content || '',
+      datePublished: '2026-11-22', dateModified: '2026-11-22',
+      author: { '@id': 'https://www.tessol.com/#organization' }, publisher: { '@id': 'https://www.tessol.com/#organization' },
+      reviewedBy: [PPL.seol, PPL.yang, PPL.kim], about: ['KOLAS 공인교정', '온도 매핑', '밸리데이션', '산업용 IoT'] };
+    if (yr) art.temporalCoverage = '2025-01-01/2026-10-31';
+    var bc = { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: '홈', item: location.origin + '/' }, { '@type': 'ListItem', position: 2, name: name, item: url }] };
+    addLd([faqLd(), art, bc]);
+    var mk = document.createElement('meta'); mk.id = 'tt-report-ld'; document.head.appendChild(mk);
+  }
+
   function seoTools() {
+    try { seoReport(); } catch (e) {}
     if (!/^\/tools\//.test(location.pathname)) return;
     var t = document.querySelector('.tt-head h1') || document.querySelector('.tessol-hero__title');
     if (t && !document.querySelector('h1')) { var h1 = document.createElement('h1'); h1.className = t.className; h1.innerHTML = t.innerHTML; t.parentNode.replaceChild(h1, t); }
@@ -388,6 +421,8 @@
     }) });
     if (document.querySelector('.tt')) ld.push({ '@context': 'https://schema.org', '@type': 'WebApplication', name: name, url: url, applicationCategory: 'BusinessApplication', operatingSystem: 'Web', inLanguage: 'ko-KR', isAccessibleForFree: true,
       description: (document.querySelector('meta[name=description]') || {}).content || '', offers: { '@type': 'Offer', price: '0', priceCurrency: 'KRW' }, provider: { '@id': 'https://www.tessol.com/#organization' } });
+    var rv = REVBY[location.pathname.replace(/\/$/, '').split('/').pop()];
+    if (rv && ld.length) { var wa = ld[ld.length - 1]; if (wa['@type'] === 'WebApplication') wa.reviewedBy = PPL[rv]; }
     var bc = [{ '@type': 'ListItem', position: 1, name: '홈', item: location.origin + '/' }, { '@type': 'ListItem', position: 2, name: '실무 계산 도구', item: location.origin + '/tools/calculators' }];
     if (!/\/tools\/calculators\/?$/.test(location.pathname)) bc.push({ '@type': 'ListItem', position: 3, name: name, item: url });
     ld.push({ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: bc });
