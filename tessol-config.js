@@ -2,7 +2,7 @@
    상세 본문 문단 [[TESSOL-TOOL:config]] 자리에 그립니다(슬러그로 코드표 선택). */
 (function () {
   'use strict';
-  if (window.__TESSOL_CFG) return; window.__TESSOL_CFG = 'v0.2';
+  if (window.__TESSOL_CFG) return; window.__TESSOL_CFG = 'v0.3';
 
   var IMG = (function () { var c = document.currentScript && document.currentScript.src; return window.__TESSOL_CFG_IMG || (c ? c.replace(/\/[^\/]*$/, '') + '/cfg' : 'cfg'); })();
   var UNITS = { bar: 1, mbar: 1000, psi: 14.5038, kPa: 100, MPa: 0.1 };
@@ -108,7 +108,7 @@
   var CHEV = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4.5 L6 8 L10 4.5" fill="none" stroke="#5f6368" stroke-width="1.4"/></svg>';
 
   function render(host, d) {
-    if (!document.getElementById('tq-css')) { var st = document.createElement('style'); st.id = 'tq-css'; st.textContent = CSS; document.head.appendChild(st); }
+    if (!document.getElementById('tq-css')) { var st = document.createElement('style'); st.id = 'tq-css'; st.textContent = CSS + CSS2; document.head.appendChild(st); }
     var S = { unit: 'bar', lo: '', hi: '' }, open = d.groups[0].k, G = {};
     d.groups.forEach(function (g) { G[g.k] = g; S[g.k] = ''; });
 
@@ -201,13 +201,166 @@
     paint();
     return w;
   }
-  window.__TESSOL_CFG_RENDER = render; window.__TESSOL_CFG_DATA = CFG;
+  /* ── 범용 구성 선택기(데이터 파일 cfg/d/<키>.json) ─────────────
+     g: 항목 [{k,t,y:'one'|'many'|'qty'|'dig',r,o:[[코드,이름,보조,사진]],mx,n,w:[k,[코드]],none}]
+     p: 모델명 조립 ["글자" | {g,pre,sep,suf}]   v: 유효 조합 {k:[...], r:[[코드...,품번,사진]]}
+     x: 함께 못 고르는 짝 [[[k,c],[k,c]]]   off: [{if:[k,[c]],g,c:[...]}]   lim: [{gs:[k],mx,if:[k,[c]],mx2,m}]
+     im: {d,r:[[k,c,파일]]}  b: 사진 기준 주소  ch: 사진 띠로 보여 줄 항목  cap: 사진 설명 */
+  var CSS2 = [
+    '.tq2 .tq-ph{min-height:0;height:auto;padding:6px 0}.tq-photo{display:block;width:100%;max-width:258px;height:auto;margin:0 auto;aspect-ratio:1/1;object-fit:contain;mix-blend-mode:multiply;animation:tqf .22s ease-out}',
+    '.tq-chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}.tq-chip{width:62px;text-align:center;font-size:11px;line-height:1.25;color:var(--sub)}.tq-chip img{display:block;width:62px;height:62px;object-fit:contain;background:#fff;border:1px solid var(--line);mix-blend-mode:normal;margin-bottom:3px}',
+    '.tq-full{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;padding:10px 12px;border:1px solid var(--line);border-top:0;background:#fff;font-size:12.5px;color:var(--sub)}.tq-full strong{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;font-size:15px;color:var(--ink);letter-spacing:.01em;word-break:break-all}.tq-full strong.is-part{color:var(--mute);font-weight:400}',
+    '.tq-op.is-off{opacity:.38;cursor:not-allowed}.tq-op.is-off:hover{background:none}.tq-op .r.sq{border-radius:2px}.tq-op.is-sel .r.sq{box-shadow:inset 0 0 0 3px #fff}',
+    '.tq-op.has-im{grid-template-columns:18px 46px 52px 1fr auto}.tq-op .im{width:46px;height:46px;object-fit:contain;background:#fff;border:1px solid var(--line)}.tq-op .im.ph{background:var(--soft)}',
+    '.tq-qty{display:inline-flex;align-items:center;border:1px solid var(--line);background:#fff}.tq-qty button{width:30px;height:30px;font-size:16px!important;color:var(--navy)!important}.tq-qty button[disabled]{color:#c4c7cc!important;cursor:not-allowed}.tq-qty output{min-width:26px;text-align:center;font-variant-numeric:tabular-nums;font-weight:700}',
+    '.tq-dig{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}.tq-dig label{font-size:12px;color:var(--sub)}.tq-dig select{width:100%;height:40px;border:1px solid var(--line);border-radius:0;background:#fff;font:inherit;font-size:14px;padding:0 6px;margin-top:3px}',
+    '.tq2 .tq-cap div{grid-template-columns:1fr;gap:0;margin-bottom:7px}.tq2 .tq-cap dd{font-weight:500}.tq-none{color:var(--sub)}.tq-g.is-hide{display:none}',
+    '@media(max-width:760px){.tq2 .tq-fig-in{display:block}.tq-photo{max-width:180px}.tq-op.has-im{grid-template-columns:18px 40px 1fr}.tq-op.has-im code{grid-column:3}.tq-op.has-im .im{grid-row:1/span 2;grid-column:2;width:40px;height:40px}.tq-op.has-im .n,.tq-op.has-im .s{grid-column:3}.tq-dig{grid-template-columns:repeat(2,1fr)}}'
+  ].join('');
+
+  function render2(host, d) {
+    var base = String(d.b || '').replace('__IMG__', IMG), G = {}, S = {}, open = '', vis = {};
+    d.g.forEach(function (g) { G[g.k] = g; S[g.k] = g.y === 'many' ? [] : g.y === 'qty' ? {} : g.y === 'dig' ? [] : ''; g.fix = g.y === 'one' && g.r && g.o.length === 1; if (g.fix) S[g.k] = g.o[0][0]; });
+    var ico = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4.5 6 8.5 10 4.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
+    var src = function (f) { return f ? (/^(https?:)?\/\//.test(f) ? f : base + f) : ''; };
+    var w = document.createElement('section'); w.className = 'tq tq2'; w.setAttribute('aria-label', d.t);
+    var strip = (d.mp ? '<button type="button" class="tq-seg" data-s="model"><b>' + esc(d.mp) + '</b><span>모델</span></button>' : '')
+      + d.g.map(function (g) { return '<button type="button" class="tq-seg" data-s="' + g.k + '"><b></b><span>' + esc(g.st || g.t) + '</span></button>'; }).join('');
+    var h = '<div class="tq-top"><div><h3>' + esc(d.t) + '</h3><p>항목을 고르면 주문 모델명과 사진이 함께 바뀝니다. 기준: ' + esc(d.src) + '</p></div><button type="button" class="tq-reset">처음부터</button></div>'
+      + '<div class="tq-code" role="group" aria-label="고른 항목">' + strip + '</div>'
+      + '<div class="tq-full" aria-live="polite"><span>주문 모델명</span><strong></strong></div>'
+      + '<div class="tq-code-ft"><span class="tq-st"></span><span class="tq-left"></span></div>'
+      + '<div class="tq-bd"><div class="tq-fig"><div class="tq-fig-in"><div class="tq-ph"></div><div class="tq-chips"></div><dl class="tq-cap"></dl><p class="tq-fn">' + esc(d.cap || '제조사 공식 제품 사진입니다.') + '</p></div></div><div class="tq-steps">';
+    var num = 0;
+    d.g.forEach(function (g) {
+      var hasIm = g.o.some(function (o) { return o[3]; }); if (!g.fix) num++;
+      h += '<div class="tq-g" data-g="' + g.k + '"><button type="button" class="tq-gh" aria-expanded="false"><i>' + ('0' + num).slice(-2) + '</i><strong>' + esc(g.t) + (g.r ? '' : ' <span class="tq-none">(선택)</span>') + '</strong><em></em>' + ico + '</button><div class="tq-gb">';
+      if (g.y === 'dig') {
+        h += (g.hint ? '<p class="tq-hint">' + esc(g.hint) + '</p>' : '') + '<div class="tq-dig">';
+        for (var j = 0; j < (g.n || 4); j++) h += '<label>' + (g.lab ? esc(g.lab[j]) : (j + 1) + '번째') + '<select data-d="' + j + '"><option value="">선택</option>' + g.o.map(function (o) { return '<option value="' + esc(o[0]) + '">' + esc(o[0] + ' · ' + o[1]) + '</option>'; }).join('') + '</select></label>';
+        h += '</div>';
+      } else {
+        h += '<div class="tq-ops' + (g.o.length > 8 && !hasIm ? ' is-wide' : '') + '">';
+        if (g.y === 'one' && !g.r) h += '<label class="tq-op' + (hasIm ? ' has-im' : '') + '" data-v=""><input type="radio" name="tq2-' + g.k + '" value=""><span class="r"></span>' + (hasIm ? '<span class="im ph"></span>' : '') + '<code>—</code><span class="n">' + esc(g.none || '고르지 않음') + '</span><span class="s"></span></label>';
+        g.o.forEach(function (o) {
+          var tp = g.y === 'one' ? 'radio' : 'checkbox';
+          h += '<label class="tq-op' + (hasIm ? ' has-im' : '') + '" data-v="' + esc(o[0]) + '">' + (g.y === 'qty' ? '' : '<input type="' + tp + '" name="tq2-' + g.k + '" value="' + esc(o[0]) + '">') + '<span class="r' + (tp === 'checkbox' || g.y === 'qty' ? ' sq' : '') + '"></span>'
+            + (hasIm ? (o[3] ? '<img class="im" src="' + src(o[3]) + '" alt="" loading="lazy" decoding="async">' : '<span class="im ph"></span>') : '')
+            + '<code>' + (g.lc ? '' : esc(o[0])) + '</code><span class="n">' + esc(o[1]) + '</span>'
+            + (g.y === 'qty' ? '<span class="s"><span class="tq-qty"><button type="button" data-q="-1" aria-label="빼기">−</button><output>0</output><button type="button" data-q="1" aria-label="더하기">+</button></span></span>' : '<span class="s">' + esc(o[2] || '') + '</span>') + '</label>';
+        });
+        h += '</div>';
+      }
+      h += (g.fn ? '<p class="tq-fn">' + esc(g.fn) + '</p>' : '') + '<button type="button" class="tq-next">다음 항목</button></div></div>';
+    });
+    h += '</div></div><div class="tq-end"><div><label for="tq-memo-' + d.k + '">요청 사항<span>수량, 사용 환경처럼 모델명에 없는 내용</span></label><textarea id="tq-memo-' + d.k + '" class="tq-memo"></textarea></div>'
+      + '<div class="tq-act"><button type="button" class="tq-b1">모델명 복사</button><a class="tq-b2" href="/support/quote" aria-disabled="true">이 구성으로 견적 요청</a><p class="tq-msg" role="status"></p></div></div>'
+      + '<ul class="tq-notes">' + (d.notes || []).map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '<li>견적 요청을 받으면 (주)테솔 담당자가 조합된 모델명을 제조사 기준으로 다시 확인해 회신합니다.</li></ul>';
+    w.innerHTML = h; host.parentNode.replaceChild(w, host);
+    var $ = function (s) { return w.querySelector(s); }, $$ = function (s) { return Array.prototype.slice.call(w.querySelectorAll(s)); };
+    var O = function (k, c) { return G[k].o.filter(function (o) { return o[0] === c; })[0]; };
+    function has(k, cs) { var v = S[k]; if (G[k].y === 'qty') return cs.some(function (c) { return v[c] > 0; }); if (Array.isArray(v)) return cs.some(function (c) { return v.indexOf(c) > -1; }); return cs.indexOf(v) > -1; }
+    function shown(g) { return !g.w || has(g.w[0], g.w[1]); }
+    function count(k) { var v = S[k]; if (G[k].y === 'qty') return Object.keys(v).reduce(function (a, c) { return a + v[c]; }, 0); if (G[k].y === 'many') return v.length; return v ? 1 : 0; }
+    function rows(skip) { if (!d.v) return null; return d.v.r.filter(function (r) { return d.v.k.every(function (k, i) { return k === skip || !(S[k] || vis[k]) || r[i] === S[k]; }); }); }
+    function off(k, c) {
+      if (d.v && d.v.k.indexOf(k) > -1) { var i = d.v.k.indexOf(k); if (!rows(k).some(function (r) { return r[i] === c; })) return '이 조합은 제조사 모델 목록에 없습니다'; }
+      var why = '';
+      (d.off || []).forEach(function (q) { if (!why && q.g === k && q.c.indexOf(c) > -1 && has(q.if[0], q.if[1])) why = q.m || '앞에서 고른 항목과 함께 쓸 수 없습니다'; });
+      (d.x || []).forEach(function (pr) { for (var a = 0; a < 2; a++) { var me = pr[a], ot = pr[1 - a]; if (!why && me[0] === k && me[1] === c && !(ot[0] === k && ot[1] === c) && has(ot[0], [ot[1]])) why = '함께 고를 수 없는 항목이 이미 선택되어 있습니다'; } });
+      return why;
+    }
+    function full(k) { // 개수 한도에 걸려 더 담을 수 없는지
+      var g = G[k]; if (g.mx && count(k) >= g.mx) return true;
+      return (d.lim || []).some(function (L) { if (L.gs.indexOf(k) < 0) return false; var mx = L.if && has(L.if[0], L.if[1]) ? L.mx2 : L.mx; return L.gs.reduce(function (a, j) { return a + (shown(G[j]) ? count(j) : 0); }, 0) >= mx; });
+    }
+    function done(g) { if (!shown(g)) return true; if (g.y === 'dig') return S[g.k].filter(Boolean).length === (g.n || 4); if (g.y === 'one') return !!S[g.k] || (!g.r && S[g.k] === '' && vis[g.k]); return !g.r || count(g.k) > 0; }
+    function val(k) { var g = G[k], v = S[k]; if (!shown(g)) return ''; if (g.y === 'one') return v; if (g.y === 'dig') return (g.srt ? v.slice().sort() : v).join(''); if (g.y === 'many') return g.o.filter(function (o) { return v.indexOf(o[0]) > -1; }).map(function (o) { return o[0]; }); var out = []; g.o.forEach(function (o) { for (var n = 0; n < (v[o[0]] || 0); n++) out.push(o[0]); }); return out; }
+    function sub(t) { return String(t || '').replace(/\{(\w+)\}/g, function (m, k) { var x = G[k] ? val(k) : ''; return Array.isArray(x) ? x.join('') : (x || '‥'); }); }
+    function build() {
+      if (d.v) { var R = rows(); if (R.length === 1 && d.g.every(done)) return R[0][d.v.k.length] || ''; return ''; }
+      return (d.p || []).map(function (q) {
+        if (typeof q === 'string') return q;
+        var x = val(q.g), g = G[q.g]; if (!shown(g)) return '';
+        if (Array.isArray(x)) { if (!x.length) return g.r ? sub(q.pre) + '‥' : ''; return sub(q.pre) + x.join(sub(q.sep || '')) + sub(q.suf); }
+        if (!x) return g.r || (g.y === 'dig') ? sub(q.pre) + '‥' + sub(q.suf) : ''; return sub(q.pre) + x + sub(q.suf);
+      }).join('');
+    }
+    function photo() {
+      var f = '';
+      if (d.v) { var R = rows(); var i = d.v.k.length + 1; if (R.length && R.every(function (r) { return r[i] === R[0][i]; })) f = R[0][i] || ''; }
+      if (!f && d.im) { (d.im.r || []).some(function (r) { if (has(r[0], [r[1]])) { f = r[2]; return true; } return false; }); f = f || d.im.d; }
+      return f;
+    }
+    function label(k) { var g = G[k], x = val(k); if (!shown(g)) return ''; if (g.y === 'one') { var o = x && O(k, x); return o ? o[1] : (x === '' && vis[k] && !g.r ? (g.none || '고르지 않음') : ''); } if (g.y === 'dig') return x; if (g.y === 'qty') return g.o.filter(function (o) { return S[k][o[0]]; }).map(function (o) { return o[0] + (S[k][o[0]] > 1 ? ' ×' + S[k][o[0]] : ''); }).join(', '); return x.join(', '); }
+    var lastPh = null, seen = {};
+    function paint() {
+      if (open) seen[open] = 1;
+      // 쓸 수 없게 된 선택 지우기
+      d.g.forEach(function (g) { if (g.y === 'one' && S[g.k] && off(g.k, S[g.k])) S[g.k] = ''; });
+      var code = build(), need = !d.need || d.need.some(function (k) { return shown(G[k]) && count(k) > 0 && !(G[k].y === 'qty' && Object.keys(S[k]).every(function (c) { return (d.nx || []).indexOf(c) > -1; })); }), ok = !!code && need && d.g.every(done) && code.indexOf('‥') < 0;
+      w.__code = ok ? code : '';
+      var fs = $('.tq-full strong'); fs.textContent = code || '‥'; fs.classList.toggle('is-part', !ok);
+      var left = d.g.filter(function (g) { return shown(g) && !done(g) && (g.r || g.y === 'dig'); }).length;
+      $('.tq-left').textContent = left ? '남은 항목 ' + left + '개' : '';
+      $('.tq-st').innerHTML = ok ? '<strong>구성이 완성되었습니다.</strong>' : !need && d.g.every(done) ? esc(d.needm || '측정 센서를 한 개 이상 고르십시오.') : '고르지 않은 칸은 ‥ 로 표시됩니다.';
+      $$('.tq-seg[data-s]').forEach(function (b) { var k = b.getAttribute('data-s'); if (k === 'model') return; var g = G[k], x = val(k), t = g.lc ? label(k) : Array.isArray(x) ? (g.y === 'qty' ? label(k).replace(/, /g, ' ') : x.join(' ')) : x; b.style.display = shown(g) ? '' : 'none'; b.querySelector('b').textContent = t || (done(g) && !g.r ? '—' : '‥'); b.classList.toggle('is-empty', !t); b.classList.toggle('is-on', open === k); });
+      var nn = 0;
+      d.g.forEach(function (g) {
+        var el = $('[data-g="' + g.k + '"]'); if (shown(g) && !g.fix) el.querySelector('.tq-gh i').textContent = ('0' + (++nn)).slice(-2); el.classList.toggle('is-hide', !shown(g) || !!g.fix); el.classList.toggle('is-open', open === g.k); el.classList.toggle('is-done', done(g) && (count(g.k) > 0 || g.y === 'dig'));
+        el.querySelector('.tq-gh').setAttribute('aria-expanded', open === g.k); el.querySelector('.tq-gh em').textContent = label(g.k) || '선택 전';
+        if (g.y === 'dig') return;
+        var isFull = full(g.k);
+        $$('[data-g="' + g.k + '"] .tq-op').forEach(function (l) {
+          var c = l.getAttribute('data-v'), sel = g.y === 'one' ? S[g.k] === c && (c !== '' || vis[g.k]) : g.y === 'many' ? S[g.k].indexOf(c) > -1 : (S[g.k][c] || 0) > 0;
+          var why = c ? off(g.k, c) : ''; if (!why && !sel && g.y !== 'one' && isFull) why = '더 고를 수 있는 개수를 넘었습니다';
+          l.classList.toggle('is-sel', sel); l.classList.toggle('is-off', !!why); l.title = why;
+          var inp = l.querySelector('input'); if (inp) { inp.checked = sel; inp.disabled = !!why && !sel; }
+          if (g.y === 'qty') { var n = S[g.k][c] || 0; l.querySelector('output').textContent = n; l.querySelector('[data-q="1"]').disabled = !!why || (g.q1 && g.q1.indexOf(c) > -1 && n >= 1); l.querySelector('[data-q="-1"]').disabled = !n; }
+        });
+      });
+      var f = photo(); if (f !== lastPh) { lastPh = f; $('.tq-ph').innerHTML = f ? '<img class="tq-photo" src="' + src(f) + '" alt="' + esc((d.alt || d.t) + (code ? ' ' + code : '')) + '" decoding="async">' : ''; }
+      var chips = []; (d.ch || []).forEach(function (k) { if (!shown(G[k])) return; [].concat(val(k) || []).filter(function (c, i, a) { return c && a.indexOf(c) === i; }).forEach(function (c) { var o = O(k, c); if (o && o[3]) chips.push('<span class="tq-chip"><img src="' + src(o[3]) + '" alt="' + esc(o[1]) + '" loading="lazy">' + esc(o[0]) + '</span>'); }); });
+      $('.tq-chips').innerHTML = chips.join(''); $('.tq-chips').style.display = chips.length ? '' : 'none';
+      $('.tq-cap').innerHTML = (d.cp || d.g.slice(0, 3).map(function (g) { return g.k; })).filter(function (k) { return shown(G[k]); }).map(function (k) { return '<div><dt>' + esc(G[k].st || G[k].t) + '</dt><dd>' + esc(label(k) || '선택 전') + '</dd></div>'; }).join('');
+      $('.tq-b2').setAttribute('aria-disabled', ok ? 'false' : 'true');
+    }
+    function next(k) { var ks = d.g.filter(function (g) { return shown(g) && !g.fix; }).map(function (g) { return g.k; }), i = ks.indexOf(k); for (var j = 1; j <= ks.length; j++) { var g = G[ks[(i + j) % ks.length]]; if (!done(g) || !seen[g.k]) return g.k; } return ''; }
+    w.addEventListener('change', function (e) {
+      var t = e.target, gEl = t.closest('[data-g]'); if (!gEl) return; var k = gEl.getAttribute('data-g'), g = G[k];
+      if (t.tagName === 'SELECT') { S[k][+t.getAttribute('data-d')] = t.value; paint(); if (done(g)) setTimeout(function () { open = next(k); paint(); }, 160); return; }
+      if (g.y === 'one') { S[k] = t.value; vis[k] = 1; paint(); setTimeout(function () { open = next(k); paint(); }, 160); return; }
+      if (g.y === 'many') { var a = S[k], i = a.indexOf(t.value); if (t.checked && i < 0) a.push(t.value); if (!t.checked && i > -1) a.splice(i, 1); paint(); }
+    });
+    w.addEventListener('click', function (e) {
+      var q = e.target.closest('[data-q]'); if (q) { e.preventDefault(); var l = q.closest('.tq-op'), k = l.closest('[data-g]').getAttribute('data-g'), c = l.getAttribute('data-v'); S[k][c] = Math.max(0, (S[k][c] || 0) + (+q.getAttribute('data-q'))); if (!S[k][c]) delete S[k][c]; paint(); return; }
+      if (e.target.closest('.tq-op') && e.target.closest('[data-g]') && G[e.target.closest('[data-g]').getAttribute('data-g')].y === 'qty') { e.preventDefault(); return; }
+      var s = e.target.closest('.tq-seg'); if (s && s.getAttribute('data-s') !== 'model') { open = s.getAttribute('data-s'); paint(); $('[data-g="' + open + '"]').scrollIntoView({ block: 'nearest', behavior: 'smooth' }); return; }
+      var gh = e.target.closest('.tq-gh'); if (gh) { var k2 = gh.parentNode.getAttribute('data-g'); open = open === k2 ? '' : k2; paint(); return; }
+      var nx = e.target.closest('.tq-next'); if (nx) { var k3 = nx.closest('[data-g]').getAttribute('data-g'); if (G[k3].y === 'one' && !G[k3].r) vis[k3] = 1; open = next(k3); paint(); return; }
+      if (e.target.closest('.tq-reset')) { d.g.forEach(function (g) { S[g.k] = g.y === 'many' || g.y === 'dig' ? [] : g.y === 'qty' ? {} : g.fix ? g.o[0][0] : ''; }); vis = {}; $$('.tq-dig select').forEach(function (x) { x.value = ''; }); open = (d.g.filter(function (g) { return !g.fix; })[0] || d.g[0]).k; paint(); return; }
+      if (e.target.closest('.tq-b1')) { if (!w.__code) { say('모든 항목을 고른 뒤 복사할 수 있습니다.'); return; } copy(w.__code, function () { say('모델명을 복사했습니다.'); }); return; }
+      var b2 = e.target.closest('.tq-b2'); if (b2) { e.preventDefault(); if (!w.__code) { say('남은 항목을 먼저 골라 주십시오.'); return; } var m = $('.tq-memo').value.trim(), txt = '[구성 선택] ' + (d.alt || d.t) + '\n모델명: ' + w.__code + (m ? '\n요청 사항: ' + m : ''); copy(txt, function () { say('구성 내용을 복사했습니다. 견적 문의 창의 문의 내용 칸에 붙여 넣어 주세요.'); setTimeout(function () { location.href = b2.href; }, 1400); }); }
+    });
+    function say(t) { $('.tq-msg').textContent = t; }
+    function copy(t, cb) { try { navigator.clipboard.writeText(t).then(cb, cb); } catch (e) { cb(); } }
+    open = (d.g.filter(function (g) { return !g.fix; })[0] || d.g[0]).k; paint();
+    return w;
+  }
+
+  window.__TESSOL_CFG_RENDER = render; window.__TESSOL_CFG_RENDER2 = render2; window.__TESSOL_CFG_DATA = CFG;
 
   function boot() {
     var key = location.pathname.split('/').filter(Boolean).pop() || '';
     Array.prototype.forEach.call(document.querySelectorAll('p, div.ce-paragraph'), function (p) {
       var m = (p.textContent || '').trim().match(/^\[\[TESSOL-TOOL:config(?::([a-z0-9-]+))?\]\]$/i);
-      if (m) { var d = CFG[(m[1] || key).toLowerCase()]; if (d) render(p, d); else p.style.display = 'none'; }
+      if (!m) return; var k = (m[1] || key).toLowerCase(), d = CFG[k];
+      if (d) { render(p, d); return; }
+      p.style.display = 'none';
+      fetch(IMG + '/d/' + k + '.json').then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (j) {
+        if (!document.getElementById('tq-css')) { var st = document.createElement('style'); st.id = 'tq-css'; st.textContent = CSS + CSS2; document.head.appendChild(st); }
+        j.k = k; p.style.display = ''; render2(p, j);
+      }).catch(function () {});
     });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
