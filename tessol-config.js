@@ -233,7 +233,7 @@
       + '<div class="tq-bd"><div class="tq-fig"><div class="tq-fig-in"><div class="tq-ph"></div><div class="tq-chips"></div><dl class="tq-cap"></dl><p class="tq-fn">' + esc(d.cap || '제조사 공식 제품 사진입니다.') + '</p></div></div><div class="tq-steps">';
     var num = 0;
     d.g.forEach(function (g) {
-      var hasIm = g.o.some(function (o) { return o[3]; }); if (!g.fix) num++;
+      var oi = g.o.filter(function (o) { return o[0] !== ''; }), hasIm = oi.length && oi.every(function (o) { return o[3]; }); if (!g.fix) num++;
       h += '<div class="tq-g" data-g="' + g.k + '"><button type="button" class="tq-gh" aria-expanded="false"><i>' + ('0' + num).slice(-2) + '</i><strong>' + esc(g.t) + (g.r ? '' : ' <span class="tq-none">(선택)</span>') + '</strong><em></em>' + ico + '</button><div class="tq-gb">';
       if (g.y === 'dig') {
         h += (g.hint ? '<p class="tq-hint">' + esc(g.hint) + '</p>' : '') + '<div class="tq-dig">';
