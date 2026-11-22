@@ -194,7 +194,7 @@
       if (e.target.closest('.tq-next')) { open = next('type') || ''; paint(); return; }
       if (e.target.closest('.tq-reset')) { d.groups.forEach(function (g) { S[g.k] = ''; }); S.lo = S.hi = ''; $('.tq-lo').value = $('.tq-hi').value = ''; open = d.groups[0].k; paint(); return; }
       if (e.target.closest('.tq-b1')) { if (!w.__code) { say('모든 항목을 고른 뒤 복사할 수 있습니다.'); return; } copy(w.__code, function () { say('모델명을 복사했습니다.'); }); return; }
-      var q = e.target.closest('.tq-b2'); if (q) { e.preventDefault(); if (!w.__code) { say('남은 항목을 먼저 골라 주십시오.'); return; } var m = $('.tq-memo').value.trim(), txt = '[구성 선택] ' + w.__code + (m ? '\n요청 사항: ' + m : ''); copy(txt, function () { say('구성 내용을 복사했습니다. 견적 문의 창의 문의 내용 칸에 붙여 넣어 주세요.'); setTimeout(function () { location.href = q.href; }, 1400); }); }
+      var q = e.target.closest('.tq-b2'); if (q) { e.preventDefault(); if (!w.__code) { say('남은 항목을 먼저 골라 주십시오.'); return; } var m = $('.tq-memo').value.trim(), txt = '[구성 선택] ' + w.__code + (m ? '\n요청 사항: ' + m : ''); copy(txt, function () { say('구성 내용을 복사했습니다. 견적 문의 창의 문의 내용 칸에 붙여 넣어 주세요.'); setTimeout(function () { location.href = q.href + '?cfg=' + encodeURIComponent((w.__code + (m ? ' | ' + m : '')).slice(0, 220)); }, 1400); }); }
     });
     function say(t) { $('.tq-msg').textContent = t; }
     function copy(t, cb) { try { navigator.clipboard.writeText(t).then(cb, cb); } catch (e) { cb(); } }
@@ -387,7 +387,7 @@
       var nx = e.target.closest('.tq-next'); if (nx) { var k3 = nx.closest('[data-g]').getAttribute('data-g'); if (G[k3].y === 'one' && !G[k3].r) vis[k3] = 1; open = next(k3); paint(); return; }
       if (e.target.closest('.tq-reset')) { d.g.forEach(function (g) { S[g.k] = g.y === 'many' || g.y === 'dig' ? [] : g.y === 'qty' ? {} : g.fix ? g.o[0][0] : ''; }); vis = {}; $$('.tq-dig select').forEach(function (x) { x.value = ''; }); open = (d.g.filter(function (g) { return !g.fix; })[0] || d.g[0]).k; paint(); return; }
       if (e.target.closest('.tq-b1')) { if (!w.__code) { say('모든 항목을 고른 뒤 복사할 수 있습니다.'); return; } copy(w.__code, function () { say('모델명을 복사했습니다.'); }); return; }
-      var b2 = e.target.closest('.tq-b2'); if (b2) { e.preventDefault(); if (!w.__code) { say('남은 항목을 먼저 골라 주십시오.'); return; } var m = $('.tq-memo').value.trim(), txt = '[구성 선택] ' + (d.alt || d.t) + '\n모델명: ' + w.__code + (m ? '\n요청 사항: ' + m : ''); copy(txt, function () { say('구성 내용을 복사했습니다. 견적 문의 창의 문의 내용 칸에 붙여 넣어 주세요.'); setTimeout(function () { location.href = b2.href; }, 1400); }); }
+      var b2 = e.target.closest('.tq-b2'); if (b2) { e.preventDefault(); if (!w.__code) { say('남은 항목을 먼저 골라 주십시오.'); return; } var m = $('.tq-memo').value.trim(), txt = '[구성 선택] ' + (d.alt || d.t) + '\n모델명: ' + w.__code + (m ? '\n요청 사항: ' + m : ''); copy(txt, function () { say('구성 내용을 복사했습니다. 견적 문의 창의 문의 내용 칸에 붙여 넣어 주세요.'); setTimeout(function () { location.href = b2.href + '?cfg=' + encodeURIComponent(((d.alt || d.t) + ' | ' + w.__code + (m ? ' | ' + m : '')).slice(0, 220)); }, 1400); }); }
     });
     function say(t) { $('.tq-msg').textContent = t; }
     function copy(t, cb) { try { navigator.clipboard.writeText(t).then(cb, cb); } catch (e) { cb(); } }
