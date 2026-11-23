@@ -485,3 +485,31 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind); else bind();
 })();
+
+/* 견적 문의 화면: 구성 선택기에서 넘어온 ?cfg= 를 문의 양식 위에 요약해 보여 주고 복사할 수 있게 합니다(2026-11-23, 파일럿 결함 35·36). */
+(function () {
+  function run() {
+    if (!/^\/support\/quote\/?$/.test(location.pathname) || document.getElementById('tq-qsum')) return true;
+    var raw = ''; try { raw = new URLSearchParams(location.search).get('cfg') || ''; } catch (e) { return true; }
+    if (!raw) return true;
+    var ifr = document.getElementById('tessol-inquiry');
+    if (!ifr) return false;
+    var p = raw.split(' | '), name = p[0] || '', code = p[1] || '', memo = p.slice(2).join(' | ');
+    var esc = function (t) { return String(t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+    if (!document.getElementById('tq-qsum-css')) { var st = document.createElement('style'); st.id = 'tq-qsum-css'; st.textContent = '#tq-qsum{background:#0e2a47;color:#fff;padding:22px 24px;margin:0 0 32px}#tq-qsum h2{margin:0 0 4px;font-size:19px;font-weight:700;color:#fff}#tq-qsum>p{margin:0 0 14px;font-size:13px;color:#a9bbcf}#tq-qsum dl{margin:0;background:#fff;color:#111}#tq-qsum dl div{display:grid;grid-template-columns:110px 1fr;gap:12px;padding:12px 16px;border-top:1px solid #d3d9e0}#tq-qsum dl div:first-child{border-top:0}#tq-qsum dt{font-size:13px;color:#5f6368}#tq-qsum dd{margin:0;font-size:15px;word-break:break-all}#tq-qsum dd.c{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;font-weight:700;font-size:18px;color:#0e2a47}#tq-qsum .a{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:14px}#tq-qsum button{height:44px;padding:0 20px;background:#fff;color:#0e2a47;border:0;font:inherit;font-weight:700;font-size:15px;cursor:pointer}#tq-qsum .m{font-size:13px;color:#d4dde7}@media(max-width:760px){#tq-qsum{padding:18px 16px}#tq-qsum dl div{grid-template-columns:1fr;gap:2px}}'; document.head.appendChild(st); }
+    var txt = '[선택한 구성]\n제품: ' + name + '\n주문 모델명: ' + code + (memo ? '\n요청 사항: ' + memo : '');
+    var el = document.createElement('div'); el.id = 'tq-qsum';
+    el.innerHTML = '<h2>선택하신 구성</h2><p>제품 상세에서 고르신 구성입니다. 아래 버튼으로 복사해 문의 내용 칸에 붙여 넣어 주십시오.</p>'
+      + '<dl><div><dt>제품</dt><dd>' + esc(name) + '</dd></div><div><dt>주문 모델명</dt><dd class="c">' + esc(code) + '</dd></div>' + (memo ? '<div><dt>요청 사항</dt><dd>' + esc(memo) + '</dd></div>' : '') + '</dl>'
+      + '<div class="a"><button type="button">구성 내용 복사</button><span class="m" aria-live="polite"></span></div>';
+    el.querySelector('button').addEventListener('click', function () {
+      var m = el.querySelector('.m'), ok = function () { m.textContent = '복사했습니다. 아래 문의 내용 칸에 붙여 넣어 주십시오.'; };
+      try { navigator.clipboard.writeText(txt).then(ok, function () { fb(); }); } catch (e) { fb(); }
+      function fb() { var t = document.createElement('textarea'); t.value = txt; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); ok(); } catch (e) { m.textContent = '복사하지 못했습니다. 직접 선택해 복사해 주십시오.'; } t.remove(); }
+    });
+    ifr.parentNode.insertBefore(el, ifr);
+    return true;
+  }
+  function go() { var n = 0; (function t() { if (!run() && ++n < 60) setTimeout(t, 300); })(); }
+  go(); document.addEventListener('DOMContentLoaded', go); document.addEventListener('hah:content-swapped', go);
+})();
