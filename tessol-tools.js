@@ -448,3 +448,44 @@
 })();
 /* 제품 구성 선택기: 본문에 [[TESSOL-TOOL:config]]가 있으면 tessol-config.min.js를 같은 경로에서 불러옵니다(2026-11-22). */
 (function () { var c = document.currentScript, src = c && c.src, n = 0, done = false; if (!src) return; function go() { if (done) return; if (document.body && document.body.textContent.indexOf('[[TESSOL-TOOL:config') >= 0) { done = true; var s = document.createElement('script'); s.src = src.replace(/tessol-tools(\.min)?\.js/, 'tessol-config.min.js'); document.body.appendChild(s); } else if (++n < 20) setTimeout(go, 500); } go(); document.addEventListener('DOMContentLoaded', go); window.addEventListener('load', go); window.addEventListener('pageshow', go); })();
+
+/* (주)테솔 교정신청서 다운로드(/cal/request/forms) — 버튼에 서식 파일 연결 (2026-11-23) */
+(function () {
+  'use strict';
+  if (window.__TESSOL_CALFORMS || !/^\/cal\/request\/forms\/?$/.test(location.pathname)) return;
+  window.__TESSOL_CALFORMS = 1;
+  var B = 'https://raw.githubusercontent.com/ehdtlsdlek320-dot/tessol-tools/85f3d7f4b236245782c5e0922332de996b083281/forms/';
+  var F = {
+    'cal-forms-kolas': {
+      DOCX: ['TS-CQP-09_form01_Rev03.docx', '(주)테솔_교정신청서_TS-CQP-09_서식01_Rev.03.docx'],
+      PDF: ['TS-CQP-09_form01_Rev03.pdf', '(주)테솔_교정신청서_TS-CQP-09_서식01_Rev.03.pdf']
+    },
+    other: {
+      DOCX: ['TS-CQP-09_form02_Rev00_decontamination.docx', '(주)테솔_오염제거_자가선언서_TS-CQP-09_서식02_Rev.00.docx']
+    }
+  };
+  function save(url, name, btn) {
+    btn.setAttribute('aria-busy', 'true');
+    fetch(url).then(function (r) { if (!r.ok) throw 0; return r.blob(); }).then(function (b) {
+      var a = document.createElement('a'), u = URL.createObjectURL(b);
+      a.href = u; a.download = name; document.body.appendChild(a); a.click();
+      setTimeout(function () { URL.revokeObjectURL(u); a.remove(); }, 4000);
+    }).catch(function () { location.href = url; }).then(function () { btn.removeAttribute('aria-busy'); });
+  }
+  function bind() {
+    var n = 0;
+    [].forEach.call(document.querySelectorAll('.cal-forms__card'), function (card) {
+      var t = card.querySelector('.cal-forms__card-title');
+      var set = F[t && t.id === 'cal-forms-kolas' ? 'cal-forms-kolas' : 'other'];
+      [].forEach.call(card.querySelectorAll('.cal-forms__btn'), function (btn) {
+        var k = (btn.textContent.match(/HWP|DOCX|PDF/) || [])[0], f = k && set[k];
+        if (!f || btn.__tf) return;
+        btn.__tf = 1; n++;
+        btn.setAttribute('data-file', f[1]);
+        btn.addEventListener('click', function (e) { e.preventDefault(); save(B + f[0], f[1], btn); });
+      });
+    });
+    return n;
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind); else bind();
+})();
