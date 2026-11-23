@@ -414,4 +414,5 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
   window.addEventListener('load', boot); window.addEventListener('pageshow', boot); var bn = 0; (function rb() { boot(); if (++bn < 16) setTimeout(rb, 750); })();
+  document.addEventListener('hah:content-swapped', function () { var k = 0; (function r() { boot(); if (++k < 12) setTimeout(r, 500); })(); });
 })();
