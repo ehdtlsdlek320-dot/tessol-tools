@@ -292,10 +292,12 @@
       if (d.v) { var R = rows(); if (R.length === 1 && d.g.every(done)) { var c0 = R[0][d.v.k.length] || ''; return c0 ? c0 + (d.va || []).map(part).join('') : ''; } return ''; }
       return (d.p || []).map(part).join('');
     }
+    var xcap = '';
     function photo() {
-      var f = '';
+      var f = ''; xcap = '';
       if (d.v) { var R = rows(); var i = d.v.k.length + 1; if (R.length && R.every(function (r) { return r[i] === R[0][i]; })) f = R[0][i] || ''; }
       if (!f && d.im) { (d.im.r || []).some(function (r) { if (has(r[0], [r[1]])) { f = r[2]; return true; } return false; }); f = f || d.im.d; }
+      ((d.im && d.im.x) || d.ix || []).forEach(function (x) { if (f && x.m[f] && x.k.some(function (k) { return G[k] && shown(G[k]) && has(k, [].concat(x.v)); })) { f = x.m[f]; xcap = x.cap || xcap; } }); // 외형이 바뀌는 선택(키링 등) 사진 교체
       return f;
     }
     function label(k) { var g = G[k], x = val(k); if (!shown(g)) return ''; if (g.y === 'one') { var o = x && O(k, x); return o ? o[1] : (x === '' && vis[k] && !g.r ? (g.none || '고르지 않음') : ''); } if (g.y === 'dig') return x; if (g.y === 'qty') return g.o.filter(function (o) { return S[k][o[0]]; }).map(function (o) { return o[0] + (S[k][o[0]] > 1 ? ' ×' + S[k][o[0]] : ''); }).join(', '); return x.join(', '); }
@@ -369,7 +371,7 @@
       if (f !== lastPh) {
         lastPh = f; $('.tq-ph').innerHTML = cq ? '<canvas class="tq-photo" width="900" height="900" role="img" aria-label="' + alt + '" style="visibility:hidden"></canvas>' : f ? '<img class="tq-photo" src="' + src(f) + '" alt="' + alt + '" decoding="async">' : '';
         if (cq) { var cv = $('.tq-ph canvas'); cv.__q = cq; cmpDraw(cv, cq); }
-        $('.tq-fig .tq-fn').textContent = cq && d.cmp.cap || d.cap || '제조사 공식 제품 사진입니다.';
+        $('.tq-fig .tq-fn').textContent = cq && d.cmp.cap || !cq && xcap || d.cap || '제조사 공식 제품 사진입니다.';
       }
       var chips = []; (d.ch || []).forEach(function (k) { if (!shown(G[k])) return; [].concat(val(k) || []).filter(function (c, i, a) { return c && a.indexOf(c) === i; }).forEach(function (c) { var o = O(k, c); if (o && o[3]) chips.push('<span class="tq-chip"><img src="' + src(o[3]) + '" alt="' + esc(o[1]) + '">' + esc(o[0]) + '</span>'); }); });
       $('.tq-chips').innerHTML = chips.join(''); $('.tq-chips').style.display = chips.length ? '' : 'none';
