@@ -296,7 +296,7 @@
     function photo() {
       var f = ''; xcap = '';
       if (d.v) { var R = rows(); var i = d.v.k.length + 1; if (R.length && R.every(function (r) { return r[i] === R[0][i]; })) f = R[0][i] || ''; }
-      if (!f && d.im) { (d.im.r || []).some(function (r) { if (has(r[0], [r[1]])) { f = r[2]; return true; } return false; }); f = f || d.im.d; }
+      if (!f && d.im) { (d.im.r || []).some(function (r) { if (has(r[0], [r[1]]) && (r[3] || []).every(function (c) { return G[c[0]] && has(c[0], [c[1]]); })) { f = r[2]; return true; } return false; }); f = f || d.im.d; }
       ((d.im && d.im.x) || d.ix || []).forEach(function (x) { if (f && x.m[f] && x.k.some(function (k) { return G[k] && shown(G[k]) && has(k, [].concat(x.v)); })) { f = x.m[f]; xcap = x.cap || xcap; } }); // 외형이 바뀌는 선택(키링 등) 사진 교체
       return f;
     }
