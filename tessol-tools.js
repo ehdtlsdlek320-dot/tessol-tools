@@ -647,16 +647,40 @@
 })();
 /* 제품 찾기: 본문에 [[TESSOL-TOOL:finder]]가 있으면 tessol-finder.min.js를 같은 경로에서 불러옵니다(2026-11-25). */
 (function () { var c = document.currentScript, src = c && c.src, n = 0, done = false; if (!src) return; function go() { if (done) return; if (document.body && document.body.textContent.indexOf('[[TESSOL-TOOL:finder') >= 0) { done = true; var u = src.replace(/tessol-tools(\.min)?\.js/, 'tessol-finder.min.js'), H = ['', 'fastly.', 'gcore.'], t = 0; (function ld() { var s = document.createElement('script'); s.src = t ? u.replace('//cdn.jsdelivr.net/', '//' + H[t] + 'jsdelivr.net/') : u; s.onerror = function () { if (++t < H.length) setTimeout(ld, 400); }; document.body.appendChild(s); })(); } else if (++n < 20) setTimeout(go, 500); } go(); document.addEventListener('DOMContentLoaded', go); window.addEventListener('load', go); window.addEventListener('pageshow', go); document.addEventListener('hah:content-swapped', function () { if (!done) { n = 0; go(); } }); })();
-;(function(){if(window.__TESSOL_PFNAV)return;window.__TESSOL_PFNAV='1';
-var U='/guide/product-finder',L='제품 찾기';
+;(function(){if(window.__TESSOL_PFNAV)return;window.__TESSOL_PFNAV='2';
+var U='/guide/product-finder',L='솔루션',LT='산업별 솔루션';
+var IND=[['pharma','제약·바이오'],['hospital','병원·혈액원·검사실'],['food','식품·콜드체인 물류'],['electronics','반도체·전자·제조'],['lab','교정·시험소'],['power','전력·설비 유지보수'],['process','공정·플랜트 계장'],['building','건물·시설 관리'],['iot','스마트팩토리·원격 모니터링'],['marine','해양·수중'],['research','대학·연구소']];
 function css(){if(document.getElementById('tt-pfnav-css'))return;var s=document.createElement('style');s.id='tt-pfnav-css';
-s.textContent='.mega__col--product .tt-pfnav{border-top:1px solid rgba(0,0,0,.08);margin-top:8px}.tt-pfnav a{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;font-size:14px;color:#1a1a1a;text-decoration:none}.tt-pfnav a:hover,.tt-pfnav a:focus-visible{color:#0b4a8b}.tt-pfnav a:hover span{text-decoration:underline;text-underline-offset:3px}.tt-pfnav img{width:12px;height:12px}.tt-pf1 .menu__link{text-decoration:none}.tt-pf1 .menu__link[aria-current=page]{color:#0b4a8b}';
+s.textContent='.tt-pf1>.menu__link{text-decoration:none}'
++'.mega--ind .mega__col--product+.mega__col--product{border-left:1px solid rgba(0,0,0,.08)}'+'.mega--ind .mega__heading.tt-blank{visibility:hidden}'
++'.tt-ind-side{box-sizing:border-box;min-width:0;overflow:hidden;white-space:normal;word-break:keep-all;background:#fff;padding:40px 32px;display:flex;flex-direction:column;justify-content:center;gap:12px}'
++'.tt-ind-side .tt-ind-k{font-size:12px;font-weight:600;letter-spacing:.08em;color:#2070b6;margin:0}'
++'.tt-ind-side .tt-ind-t{font-size:26px;font-weight:700;color:#131313;margin:0;line-height:1.3}'
++'.tt-ind-side .tt-ind-d{white-space:normal;font-size:15px;line-height:1.6;color:#555;margin:0}'
++'.tt-ind-side .tt-ind-b{align-self:flex-start;margin-top:12px;display:inline-flex;align-items:center;height:40px;padding:0 20px;border-radius:4px;background:#154670;color:#fff!important;font-size:14px;font-weight:500;text-decoration:none}'
++'.tt-ind-side .tt-ind-b:hover{background:#0f5694}';
 document.head.appendChild(s)}
+function q(id){return U+'?q='+id}
+function li(h,t){return '<li><a class="mega__item" href="'+h+'"><span>'+t+'</span><img class="mega__chevron mega__chevron--on" src="/assets/images/icons/mega-chevron-green.svg" alt="" width="12" height="12"><img class="mega__chevron mega__chevron--off" src="/assets/images/icons/mega-chevron-gray.svg" alt="" width="12" height="12"></a></li>'}
+function panel(){var a=IND.slice(0,6).map(function(x){return li(q(x[0]),x[1])}).join(''),b=IND.slice(6).map(function(x){return li(q(x[0]),x[1])}).join('');
+return '<div class="mega mega--products mega--ind" hidden aria-hidden="true" inert><div class="container mega__inner">'
++'<div class="mega__col mega__col--product"><p class="mega__heading">'+LT+'</p><ul class="mega__list" role="list">'+a+'</ul></div>'
++'<div class="mega__col mega__col--product"><p class="mega__heading tt-blank" aria-hidden="true">'+LT+'</p><ul class="mega__list" role="list">'+b+'</ul></div>'
++'<div class="tt-ind-side"><p class="tt-ind-k">SOLUTIONS BY INDUSTRY</p><p class="tt-ind-t">'+LT+'</p><p class="tt-ind-d">분야와 용도를 차례로 고르시면 사양과 관련 규정에 맞는 제품을 안내해 드립니다.</p><a class="tt-ind-b" href="'+U+'">전체 분야 보기</a></div>'
++'</div></div>'}
+function hide(o){o.classList.remove('is-open');var om=o.querySelector(':scope>.mega');if(om){om.hidden=true;om.setAttribute('aria-hidden','true');om.setAttribute('inert','')}var b=o.querySelector(':scope>.menu__link');if(b)b.setAttribute('aria-expanded','false')}
+function bind(it){var m=it.querySelector('.mega--ind'),tm;
+function open(){clearTimeout(tm);it.parentNode.querySelectorAll(':scope>.menu__item.is-open').forEach(function(o){if(o!==it)hide(o)});
+it.classList.add('is-open');m.hidden=false;m.setAttribute('aria-hidden','false');m.removeAttribute('inert');it.querySelector('.menu__link').setAttribute('aria-expanded','true')}
+function close(){clearTimeout(tm);tm=setTimeout(function(){hide(it)},120)}
+it.addEventListener('mouseenter',open);it.addEventListener('mouseleave',close);it.addEventListener('focusin',open);it.addEventListener('focusout',function(e){if(!it.contains(e.relatedTarget))close()});
+it.addEventListener('keydown',function(e){if(e.key==='Escape'){hide(it);it.querySelector('.menu__link').focus()}});
+it.parentNode.querySelectorAll(':scope>.menu__item').forEach(function(o){if(o!==it)o.addEventListener('mouseenter',function(){clearTimeout(tm);hide(it)})})}
 function run(){css();
-document.querySelectorAll('nav.menu').forEach(function(nav){var pm=nav.querySelector('.menu__item[data-mega="products"]');if(!pm||nav.querySelector('.tt-pf1'))return;var it=document.createElement('div');it.className='menu__item tt-pf1';it.innerHTML='<a class="menu__link" href="'+U+'">'+L+'</a>';if(location.pathname===U)it.querySelector('a').setAttribute('aria-current','page');pm.parentNode.insertBefore(it,pm.nextSibling)});
-document.querySelectorAll('.mega__col--product .mega__list').forEach(function(ul){if(ul.querySelector('.tt-pfnav'))return;var li=document.createElement('li');li.className='tt-pfnav';li.innerHTML='<a href="'+U+'"><span>'+L+'</span><img src="/assets/images/icons/mega-chevron-gray.svg" alt="" width="12" height="12"></a>';ul.appendChild(li)});
+document.querySelectorAll('nav.menu').forEach(function(nav){var pm=nav.querySelector('.menu__item[data-mega="products"]');if(!pm||nav.querySelector('.tt-pf1'))return;var it=document.createElement('div');it.className='menu__item has-mega tt-pf1';it.setAttribute('data-mega','ind');it.innerHTML='<a class="menu__link" href="'+U+'" aria-haspopup="true" aria-expanded="false">'+L+'</a>'+panel();if(location.pathname===U)it.classList.add('is-active');pm.parentNode.insertBefore(it,pm.nextSibling);bind(it)});
 var mp=document.querySelector('.web-mobile-drawer__depth2-panel[data-depth1-panel="0"]');
-if(mp&&!mp.querySelector('.tt-pfnav-m')&&mp.querySelector('a[href^="/products/"]')){var d=document.createElement('div');d.className='web-mobile-drawer__depth2-item tt-pfnav-m';d.innerHTML='<div class="web-mobile-drawer__depth2-toggle"><a href="'+U+'">'+L+'</a></div>';mp.insertBefore(d,mp.firstChild)}
-document.querySelectorAll('.site-footer__col-title').forEach(function(t){if(t.textContent.trim()!=='제품정보')return;var ul=t.parentElement.querySelector('.site-footer__links');if(!ul||ul.querySelector('a[href="'+U+'"]'))return;var li=document.createElement('li');li.innerHTML='<a href="'+U+'">'+L+'</a>';ul.appendChild(li)})}
+if(mp&&!mp.querySelector('.tt-pfnav-m')&&mp.querySelector('a[href^="/products/"]')){var d=document.createElement('div');d.className='web-mobile-drawer__depth2-item has-depth3 tt-pfnav-m';d.innerHTML='<div class="web-mobile-drawer__depth2-toggle"><a href="'+U+'">'+LT+'</a><button type="button" class="web-mobile-drawer__chevron" aria-label="'+LT+' 하위 분류" aria-expanded="false"></button></div><ul class="web-mobile-drawer__depth3" hidden>'+IND.map(function(x){return '<li><a href="'+q(x[0])+'">'+x[1]+'</a></li>'}).join('')+'</ul>';mp.insertBefore(d,mp.firstChild);
+var bt=d.querySelector('button'),ul=d.querySelector('ul');bt.addEventListener('click',function(e){e.preventDefault();e.stopImmediatePropagation();var o=ul.hidden;ul.hidden=!o;bt.setAttribute('aria-expanded',o?'true':'false');d.classList.toggle('is-open',o)})}
+document.querySelectorAll('.site-footer__col-title').forEach(function(t){if(t.textContent.trim()!=='제품정보')return;var ul=t.parentElement.querySelector('.site-footer__links');if(!ul||ul.querySelector('a[href="'+U+'"]'))return;var l=document.createElement('li');l.innerHTML='<a href="'+U+'">'+LT+'</a>';ul.appendChild(l)})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
 document.addEventListener('hah:content-swapped',run)})();
