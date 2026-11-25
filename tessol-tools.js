@@ -650,12 +650,13 @@
 ;(function(){if(window.__TESSOL_PFNAV)return;window.__TESSOL_PFNAV='1';
 var U='/guide/product-finder',L='제품 찾기';
 function css(){if(document.getElementById('tt-pfnav-css'))return;var s=document.createElement('style');s.id='tt-pfnav-css';
-s.textContent='.mega__col--product .tt-pfnav{border-top:1px solid rgba(0,0,0,.08);margin-top:8px}.tt-pfnav a{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;font-size:14px;color:#1a1a1a;text-decoration:none}.tt-pfnav a:hover,.tt-pfnav a:focus-visible{color:#0b4a8b}.tt-pfnav a:hover span{text-decoration:underline;text-underline-offset:3px}.tt-pfnav img{width:12px;height:12px}';
+s.textContent='.mega__col--product .tt-pfnav{border-top:1px solid rgba(0,0,0,.08);margin-top:8px}.tt-pfnav a{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;font-size:14px;color:#1a1a1a;text-decoration:none}.tt-pfnav a:hover,.tt-pfnav a:focus-visible{color:#0b4a8b}.tt-pfnav a:hover span{text-decoration:underline;text-underline-offset:3px}.tt-pfnav img{width:12px;height:12px}.tt-pf1 .menu__link{text-decoration:none}.tt-pf1 .menu__link[aria-current=page]{color:#0b4a8b}';
 document.head.appendChild(s)}
 function run(){css();
+document.querySelectorAll('nav.menu').forEach(function(nav){var pm=nav.querySelector('.menu__item[data-mega="products"]');if(!pm||nav.querySelector('.tt-pf1'))return;var it=document.createElement('div');it.className='menu__item tt-pf1';it.innerHTML='<a class="menu__link" href="'+U+'">'+L+'</a>';if(location.pathname===U)it.querySelector('a').setAttribute('aria-current','page');pm.parentNode.insertBefore(it,pm.nextSibling)});
 document.querySelectorAll('.mega__col--product .mega__list').forEach(function(ul){if(ul.querySelector('.tt-pfnav'))return;var li=document.createElement('li');li.className='tt-pfnav';li.innerHTML='<a href="'+U+'"><span>'+L+'</span><img src="/assets/images/icons/mega-chevron-gray.svg" alt="" width="12" height="12"></a>';ul.appendChild(li)});
 var mp=document.querySelector('.web-mobile-drawer__depth2-panel[data-depth1-panel="0"]');
-if(mp&&!mp.querySelector('.tt-pfnav-m')&&mp.querySelector('a[href^="/products/"]')){var d=document.createElement('div');d.className='web-mobile-drawer__depth2-item tt-pfnav-m';d.innerHTML='<div class="web-mobile-drawer__depth2-toggle"><a href="'+U+'">'+L+'</a></div>';mp.appendChild(d)}
+if(mp&&!mp.querySelector('.tt-pfnav-m')&&mp.querySelector('a[href^="/products/"]')){var d=document.createElement('div');d.className='web-mobile-drawer__depth2-item tt-pfnav-m';d.innerHTML='<div class="web-mobile-drawer__depth2-toggle"><a href="'+U+'">'+L+'</a></div>';mp.insertBefore(d,mp.firstChild)}
 document.querySelectorAll('.site-footer__col-title').forEach(function(t){if(t.textContent.trim()!=='제품정보')return;var ul=t.parentElement.querySelector('.site-footer__links');if(!ul||ul.querySelector('a[href="'+U+'"]'))return;var li=document.createElement('li');li.innerHTML='<a href="'+U+'">'+L+'</a>';ul.appendChild(li)})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
 document.addEventListener('hah:content-swapped',run)})();
