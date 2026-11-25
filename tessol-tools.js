@@ -598,6 +598,7 @@
   }
   function run() {
     var path = location.pathname.replace(/\/+$/, ''), m;
+    if (path === PG) { team(); return; }
     var body = document.querySelector('.news-post__body');
     if (body && (m = path.match(/^\/insight\/([^\/]+)\/view\/\d+/))) {
       var k = insight(m[1], txt(document.querySelector('.news-post__cat')), txt(document.querySelector('.news-post__title')));
@@ -624,6 +625,17 @@
     var fk = /^\/cal\//.test(path) ? 'seol' : /^\/val\//.test(path) ? 'yang' : /^\/support\/faq/.test(path) ? 'han' : '';
     if (fq && fk) { var all = document.querySelectorAll('.faq-item'), last = all[all.length - 1].parentNode; put(last, [['감수', fk]], false); page([fk]); return; }
     put(null);
+  }
+  function team() {
+    var hs = document.querySelectorAll('.editorjs-content h1, .editorjs-content h2, .editorjs-content h3'), seen = {}, list = [];
+    if (hs.length && !document.querySelector('h1')) { var t = hs[0], h1 = document.createElement('h1'); h1.className = t.className; h1.innerHTML = t.innerHTML; t.parentNode.replaceChild(h1, t); }
+    ['jang', 'han', 'kimI', 'jung', 'lee', 'yang', 'seol', 'park'].forEach(function (k) {
+      var nm = P[k][0], id = aid(k); if (seen[id]) return; seen[id] = 1;
+      Array.prototype.forEach.call(document.querySelectorAll('.editorjs-content h2, .editorjs-content h3'), function (h) { if (txt(h).indexOf(nm) === 0) h.id = id; });
+      var o = person(k); if (k === 'kimI') o.jobTitle = ['영업본부 계측기사업부', '마케팅팀 팀장']; list.push(o);
+    });
+    addLd('tt-by-ld', { '@context': 'https://schema.org', '@type': 'AboutPage', '@id': O + PG + '#webpage', url: O + PG, name: '작성·감수진', inLanguage: 'ko-KR', publisher: { '@id': O + '/#organization' }, mainEntity: { '@type': 'ItemList', itemListElement: list.map(function (o, i) { return { '@type': 'ListItem', position: i + 1, item: o }; }) } });
+    if (location.hash) { var el = document.getElementById(location.hash.slice(1)); if (el) setTimeout(function () { el.scrollIntoView(); }, 100); }
   }
   function meta(k) {
     var mm = document.querySelector('.news-post__meta'); if (!mm || mm.querySelector('.tt-by-meta')) return;
