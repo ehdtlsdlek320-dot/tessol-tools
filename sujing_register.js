@@ -38,13 +38,19 @@
   const dl = (n, o) => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(o, null, 1)], { type: 'application/json' })); a.download = n; document.body.appendChild(a); a.click(); a.remove(); };
 
   // 본문 사진 업로드: 한 장씩 올리고 응답에 새로 생긴 /uploads/editor 주소를 고릅니다.
-  const seen = new Set(); let seenReady = false;
+  const seen = new Set(); let seenReady = false, csrf = '';
   const stamp = u => { const m = u.match(/\/(\d{9,11})_[^\/]*$/); return m ? +m[1] : 0; };
   async function upload(id) {
     if (up[id]) return up[id];
     const file = await fileOf('sujing/' + id + '.jpg', 'sujing-' + id + '.jpg');
-    const t0 = Math.floor(Date.now() / 1000), fd = new FormData(); fd.append('images[]', file, file.name);
-    const r = await fetch(upUrl, { method: 'POST', body: fd, credentials: 'same-origin' }); const tx = await r.text();
+    const t0 = Math.floor(Date.now() / 1000);
+    let r, tx;
+    for (let a = 0; a < 2; a++) {
+      if (!csrf || a) csrf = (await getDoc(root + 'write')).querySelector('[name="csrf_test_name"]').value;
+      const fd = new FormData(); fd.append('csrf_test_name', csrf); fd.append('images[]', file, file.name);
+      r = await fetch(upUrl, { method: 'POST', body: fd, credentials: 'same-origin' }); tx = await r.text();
+      if (r.status !== 403) break;
+    }
     if (!r.ok) throw new Error('업로드 ' + r.status);
     const used = new Set(Object.values(up));
     const all = [...new Set(tx.replace(/\\\//g, '/').match(/\/uploads\/editor\/[^"'\s<>\\]+\.(?:jpe?g|png|webp)/gi) || [])];
