@@ -601,13 +601,13 @@
     var body = document.querySelector('.news-post__body');
     if (body && (m = path.match(/^\/insight\/([^\/]+)\/view\/\d+/))) {
       var k = insight(m[1], txt(document.querySelector('.news-post__cat')), txt(document.querySelector('.news-post__title')));
-      put(body, [['작성', k], ['편집', 'park']], true); meta(k);
+      put(body.querySelector('.editorjs-content') || body, [['작성', k], ['편집', 'park']], true); meta(k);
       ldPatch(function (o) { if (!/Article/.test(o['@type'])) return 0; o.author = person(k); o.editor = person('park'); return 1; });
       return;
     }
     if (body && /^\/about\/news\/view\/\d+/.test(path)) {
       var r = newsRev(txt(document.querySelector('.news-post__title')));
-      put(body, [['작성', 'kimM'], ['감수', r]], true); meta('kimM');
+      put(body.querySelector('.editorjs-content') || body, [['작성', 'kimM'], ['감수', r]], true); meta('kimM');
       ldPatch(function (o) { if (!/Article/.test(o['@type'])) return 0; o.author = person('kimM'); return 1; });
       page([r]); return;
     }
@@ -616,7 +616,7 @@
       var br = '', cats = path.split('/');
       ldPatch(function (o) { if (o['@type'] === 'Product' && o.brand) br = o.brand.name || ''; return 0; });
       var who = /haier/i.test(br) || cats[2] === 'biomedical' ? 'lee' : /JRI|TMI/i.test(br) || /validator/.test(path) ? 'yang' : cats[2] === 'calibration' ? 'seol' : 'jung';
-      put(pv, [['기술 감수', who]], true); page([who]); return;
+      put(pv.querySelector('.editorjs-content') || pv, [['기술 감수', who]], true); page([who]); return;
     }
     var tk = /^\/tools\//.test(path) && TOOL[path.split('/').pop()];
     if (tk) { put(document.querySelector('.editorjs-content'), [['감수', tk]], true); return; }
