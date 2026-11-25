@@ -33,7 +33,9 @@
       if (ht) title = ht.textContent; if (hs) sub = hs.textContent;
       rm.push(hero.closest('.tessol-section'));
     } else {
-      var h1 = root.querySelector('h1');
+      var mk = null, h1 = root.querySelector('h1, h2');
+      Array.prototype.forEach.call(root.querySelectorAll('p'), function (p) { if (!mk && /TESSOL-TOOL:finder/.test(p.textContent)) mk = p; });
+      if (h1 && mk && !(h1.compareDocumentPosition(mk) & 4)) h1 = null;
       if (h1) {
         title = h1.textContent; rm.push(h1);
         var nx = h1.nextElementSibling; if (nx && nx.tagName === 'P' && !/TESSOL-TOOL/.test(nx.textContent)) { sub = nx.textContent; rm.push(nx); }
