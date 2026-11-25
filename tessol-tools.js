@@ -580,7 +580,7 @@
   function put(after, rows, inside) {
     var old = document.querySelectorAll('.tt-by'); for (var i = 0; i < old.length; i++) old[i].parentNode.removeChild(old[i]);
     if (!after) return; css();
-    var d = document.createElement('div'); d.className = 'tt-by' + (inside && after.querySelector(':scope > .tessol-section > .container') ? ' container' : ''); d.innerHTML = '<div class="tt-by__in">' + rows.map(function (r) { return line(r[0], r[1]); }).join('') + '</div>';
+    var d = document.createElement('div'); d.className = 'tt-by'; if (inside) { var cs = after.querySelectorAll(':scope > .tessol-section > .container'); if (cs.length) after = cs[cs.length - 1]; } d.innerHTML = '<div class="tt-by__in">' + rows.map(function (r) { return line(r[0], r[1]); }).join('') + '</div>';
     if (inside) after.appendChild(d); else after.parentNode.insertBefore(d, after.nextSibling);
   }
   function ldPatch(fn) {
