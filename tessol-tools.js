@@ -645,3 +645,5 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else go();
   document.addEventListener('hah:content-swapped', function () { setTimeout(go, 60); });
 })();
+/* 제품 찾기: 본문에 [[TESSOL-TOOL:finder]]가 있으면 tessol-finder.min.js를 같은 경로에서 불러옵니다(2026-11-25). */
+(function () { var c = document.currentScript, src = c && c.src, n = 0, done = false; if (!src) return; function go() { if (done) return; if (document.body && document.body.textContent.indexOf('[[TESSOL-TOOL:finder') >= 0) { done = true; var u = src.replace(/tessol-tools(\.min)?\.js/, 'tessol-finder.min.js'), H = ['', 'fastly.', 'gcore.'], t = 0; (function ld() { var s = document.createElement('script'); s.src = t ? u.replace('//cdn.jsdelivr.net/', '//' + H[t] + 'jsdelivr.net/') : u; s.onerror = function () { if (++t < H.length) setTimeout(ld, 400); }; document.body.appendChild(s); })(); } else if (++n < 20) setTimeout(go, 500); } go(); document.addEventListener('DOMContentLoaded', go); window.addEventListener('load', go); window.addEventListener('pageshow', go); document.addEventListener('hah:content-swapped', function () { if (!done) { n = 0; go(); } }); })();
