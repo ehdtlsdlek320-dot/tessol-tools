@@ -507,3 +507,31 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else go();
   document.addEventListener('hah:content-swapped', go);
 })();
+/* FAQ 구조화 데이터: 화면의 FAQ(.faq-item)를 읽어 FAQPage JSON-LD를 넣습니다. 서버가 이미 FAQPage를 출력한 페이지(제품 상세)와 /tools/·/report/(위 seoTools)는 건너뜁니다(2026-11-25). */
+(function () {
+  if (window.__TESSOL_FAQLD) return; window.__TESSOL_FAQLD = 1;
+  var ID = 'tt-faq-ld';
+  function clean(s) { return (s || '').replace(/[⁠​]/g, '').replace(/[ \t]+/g, ' ').replace(/\s*\n\s*/g, '\n').trim(); }
+  function run() {
+    if (/^\/(tools|report)\//.test(location.pathname)) return;
+    var old = document.getElementById(ID); if (old) old.parentNode.removeChild(old);
+    var lds = document.querySelectorAll('script[type="application/ld+json"]');
+    for (var i = 0; i < lds.length; i++) if (/"FAQPage"/.test(lds[i].textContent)) return;
+    var seen = {}, items = [];
+    Array.prototype.forEach.call(document.querySelectorAll('.faq-item'), function (li) {
+      if (li.closest('header, footer, nav')) return;
+      var q = li.querySelector('.faq-item__subject'), a = li.querySelector('.faq-item__answer-body') || li.querySelector('.faq-item__answer');
+      var qt = clean(q && q.textContent), at = clean(a && a.textContent).replace(/^A\.\s*/, '');
+      if (!qt || !at || seen[qt]) return; seen[qt] = 1;
+      items.push({ '@type': 'Question', name: qt, acceptedAnswer: { '@type': 'Answer', text: at } });
+    });
+    if (!items.length) return;
+    var sc = document.createElement('script'); sc.type = 'application/ld+json'; sc.id = ID;
+    sc.textContent = JSON.stringify({ '@context': 'https://schema.org', '@type': 'FAQPage', '@id': location.origin + location.pathname + '#faq', url: location.origin + location.pathname, inLanguage: 'ko-KR', mainEntity: items });
+    document.head.appendChild(sc);
+  }
+  function go() { try { run(); } catch (e) {} }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else go();
+  window.addEventListener('load', go);
+  document.addEventListener('hah:content-swapped', function () { setTimeout(go, 50); });
+})();
