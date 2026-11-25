@@ -573,7 +573,7 @@
   function css() {
     if (document.getElementById('tt-by-css')) return;
     var s = document.createElement('style'); s.id = 'tt-by-css';
-    s.textContent = '.tt-by{margin-top:56px;margin-bottom:0}.tt-by__in{padding:16px 0 0;border-top:1px solid #dcdcdc;font-size:14px;line-height:1.8;color:#555}.tt-by p{margin:0}.tt-by b{display:inline-block;min-width:44px;font-weight:600;color:#222}.tt-by a{color:inherit;text-decoration:underline;text-underline-offset:3px}.tt-by-meta{font-size:inherit;color:inherit}';
+    s.textContent = '.tt-by{margin-top:56px;margin-bottom:0}.tt-by__in{padding:16px 0 0;border-top:1px solid #dcdcdc;font-size:14px;line-height:1.8;color:#555}.tt-by p{margin:0}.tt-by b{display:inline-block;min-width:44px;margin-right:10px;font-weight:600;color:#222}.tt-by a{color:inherit;text-decoration:underline;text-underline-offset:3px}.tt-by-meta{font-size:inherit;color:inherit}';
     document.head.appendChild(s);
   }
   function line(role, k) { return '<p><b>' + role + '</b><a href="' + PG + '#' + aid(k) + '">' + P[k][0] + '</a> ' + P[k][1] + '</p>'; }
