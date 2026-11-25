@@ -602,7 +602,7 @@
     var body = document.querySelector('.news-post__body');
     if (body && (m = path.match(/^\/insight\/([^\/]+)\/view\/\d+/))) {
       var k = insight(m[1], txt(document.querySelector('.news-post__cat')), txt(document.querySelector('.news-post__title')));
-      put(body.querySelector('.editorjs-content') || body, [['작성', k], ['편집', 'park']], true); meta(k);
+      var rows = [['작성', k], ['편집', 'park']]; if (m[1] === 'cases') rows.push(['감수', 'han']); put(body.querySelector('.editorjs-content') || body, rows, true); meta(k); if (m[1] === 'cases') page(['han']);
       ldPatch(function (o) { if (!/Article/.test(o['@type'])) return 0; o.author = person(k); o.editor = person('park'); return 1; });
       return;
     }
