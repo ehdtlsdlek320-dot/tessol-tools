@@ -377,9 +377,9 @@
 
 
   var PPL = {
-    seol: { '@type': 'Person', name: '설대환', jobTitle: '교정사업부 기술책임자(차장)', worksFor: { '@id': 'https://www.tessol.com/#organization' } },
-    yang: { '@type': 'Person', name: '양도현', jobTitle: '밸리데이션사업부 팀장(차장)', worksFor: { '@id': 'https://www.tessol.com/#organization' } },
-    kim: { '@type': 'Person', name: '김동신', jobTitle: '계측기사업부 과장·마케팅팀 팀장', worksFor: { '@id': 'https://www.tessol.com/#organization' } }
+    seol: { '@type': 'Person', name: '설대환', jobTitle: '교정사업부 교정1팀 팀장', url: 'https://www.tessol.com/about/experts#seol', worksFor: { '@id': 'https://www.tessol.com/#organization' } },
+    yang: { '@type': 'Person', name: '양도현', jobTitle: '밸리데이션사업부 총괄', url: 'https://www.tessol.com/about/experts#yang', worksFor: { '@id': 'https://www.tessol.com/#organization' } },
+    kim: { '@type': 'Person', name: '김동신', jobTitle: '영업본부 계측기사업부', url: 'https://www.tessol.com/about/experts#kim', worksFor: { '@id': 'https://www.tessol.com/#organization' } }
   };
   var REVBY = { 'dew-point-calculator': 'seol', 'tur-calculator': 'seol', 'temperature-mapping-sensor-calculator': 'yang', 'temperature-mapping-checklist': 'yang', 'temperature-regulation-checklist': 'yang', 'mkt-calculator': 'kim' };
   function faqLd() {
@@ -534,4 +534,102 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else go();
   window.addEventListener('load', go);
   document.addEventListener('hah:content-swapped', function () { setTimeout(go, 50); });
+})();
+/* 작성·감수자 표기(E-E-A-T): 인사이트·뉴스 글 하단 작성·편집·감수 줄, 제품 상세 기술 감수 줄, FAQ·도구 감수 줄 + 구조화 데이터(Article author/editor, WebPage reviewedBy, Person). 배정 기준은 CMS 작성자(post_nickname) 입력과 같습니다(2026-11-25). */
+(function () {
+  if (window.__TESSOL_BYLINE) return; window.__TESSOL_BYLINE = 1;
+  var O = 'https://www.tessol.com', PG = '/about/experts';
+  var P = {
+    jang: ['장지훈', '대표이사'], han: ['한승우', '영업본부 총괄이사'],
+    kimI: ['김동신', '영업본부 계측기사업부', 'kim'], kimM: ['김동신', '마케팅팀 팀장', 'kim'],
+    jung: ['정광호', '영업본부 계측기사업부 총괄'], lee: ['이종승', '영업본부 바이오메디컬사업부 총괄'],
+    yang: ['양도현', '밸리데이션사업부 총괄'], seol: ['설대환', '교정사업부 교정1팀 팀장'], park: ['박소현', '마케팅팀 에디터']
+  };
+  var CAT = {
+    cases: { '제약·바이오': 'yang', '병원·의료': 'lee', '연구소·대학': 'kimI', '식품·농업': 'kimI', '물류·콜드체인': 'yang', '제조·전자·반도체': 'jung', '에너지·시설·건설': 'jung', '품질·교정': 'seol' },
+    guide: { '온도·습도': 'kimI', '밸리데이션·데이터 무결성': 'yang', '교정·불확도': 'seol', '전기·전력': 'jung', '유량·압력·진동': 'jung', '무선·IoT·시간 동기': 'kimI' },
+    regulation: { '의약품 GMP·GDP': 'yang', '백신·의료·연구기관': 'lee', '식품 위생·콜드체인': 'kimI', '표준·인증·안전 기준': 'seol' },
+    'product-guide': { '데이터로거·환경 모니터링': 'kimI', '충격·운송 모니터링': 'kimI', '전기·전력 계측': 'jung', '교정기·표준기': 'seol', '유량계·리크 테스터': 'jung', '시간·주파수': 'jung', 'IoT·무선 통신': 'kimI', '수중·로보틱스': 'jung' }
+  };
+  var KW = [
+    ['yang', /JRI|TMI|Nova ?SPY|노바스파이|MySirius|마이시리우스|Green Digital|VACQ|INON|HiTemp|(?<!네트워크 )매핑|밸리데이션|밸리데이터|적격성|(^|[^A-Za-z])[IOP]Q([^A-Za-z]|$)|멸균|데이터 무결성|Part 11|Annex 11|KGSP|열 ?침투|열분포/i],
+    ['seol', /KOLAS|교정|불확도|TUR|소급성|표준기|17025/],
+    ['lee', /Haier|하이얼|혈액|바이오메디컬|액체질소|LN2|바이오뱅크/i]
+  ];
+  function insight(b, c, t) { for (var i = 0; i < KW.length; i++) if (KW[i][1].test(t || '')) return KW[i][0]; return (CAT[b] || {})[c] || 'kimI'; }
+  function newsRev(t) {
+    t = t || '';
+    if (/KOLAS|인정|창간|협력|협약|MOU|파트너십|×|창립|ISO/.test(t)) return 'jang';
+    if (/Haier|하이얼|바이오메디컬/i.test(t)) return 'lee';
+    if (/JRI|TMI|INON|HiTemp|밸리데이터|밸리데이션|매핑/i.test(t)) return 'yang';
+    if (/교정|표준기|Cypress/i.test(t)) return 'seol';
+    if (/프로모션|사은품|전시|박람회|세미나|이벤트|영업/.test(t)) return 'han';
+    return 'jung';
+  }
+  var TOOL = { 'dew-point-calculator': 'seol', 'tur-calculator': 'seol', 'temperature-mapping-sensor-calculator': 'yang', 'temperature-mapping-checklist': 'yang', 'temperature-regulation-checklist': 'yang', 'mkt-calculator': 'kimI' };
+  function aid(k) { return P[k][2] || k; }
+  function person(k) { var id = O + PG + '#' + aid(k); return { '@type': 'Person', '@id': id, name: P[k][0], jobTitle: P[k][1], url: id, worksFor: { '@id': O + '/#organization' } }; }
+  function txt(e) { return e ? e.textContent.replace(/[⁠​]/g, '').replace(/\s+/g, ' ').trim() : ''; }
+  function css() {
+    if (document.getElementById('tt-by-css')) return;
+    var s = document.createElement('style'); s.id = 'tt-by-css';
+    s.textContent = '.tt-by{margin:56px 0 0;padding:16px 0 0;border-top:1px solid #dcdcdc;font-size:14px;line-height:1.8;color:#555}.tt-by p{margin:0}.tt-by b{display:inline-block;min-width:44px;font-weight:600;color:#222}.tt-by a{color:inherit;text-decoration:underline;text-underline-offset:3px}.tt-by-meta{font-size:inherit;color:inherit}';
+    document.head.appendChild(s);
+  }
+  function line(role, k) { return '<p><b>' + role + '</b><a href="' + PG + '#' + aid(k) + '">' + P[k][0] + '</a> ' + P[k][1] + '</p>'; }
+  function put(after, rows, inside) {
+    var old = document.querySelectorAll('.tt-by'); for (var i = 0; i < old.length; i++) old[i].parentNode.removeChild(old[i]);
+    if (!after) return; css();
+    var d = document.createElement('div'); d.className = 'tt-by'; d.innerHTML = rows.map(function (r) { return line(r[0], r[1]); }).join('');
+    if (inside) after.appendChild(d); else after.parentNode.insertBefore(d, after.nextSibling);
+  }
+  function ldPatch(fn) {
+    var lds = document.querySelectorAll('script[type="application/ld+json"]');
+    for (var i = 0; i < lds.length; i++) {
+      try { var j = JSON.parse(lds[i].textContent), g = j['@graph'] || [j], hit = 0;
+        g.forEach(function (o) { if (fn(o)) hit = 1; });
+        if (hit) lds[i].textContent = JSON.stringify(j); } catch (e) {}
+    }
+  }
+  function addLd(id, o) { var x = document.getElementById(id); if (x) x.parentNode.removeChild(x); var s = document.createElement('script'); s.type = 'application/ld+json'; s.id = id; s.textContent = JSON.stringify(o); document.head.appendChild(s); }
+  function page(rev) {
+    var u = O + location.pathname;
+    addLd('tt-by-ld', { '@context': 'https://schema.org', '@type': 'WebPage', '@id': u + '#webpage', url: u, inLanguage: 'ko-KR', reviewedBy: rev.map(person), publisher: { '@id': O + '/#organization' } });
+  }
+  function run() {
+    var path = location.pathname.replace(/\/+$/, ''), m;
+    var body = document.querySelector('.news-post__body');
+    if (body && (m = path.match(/^\/insight\/([^\/]+)\/view\/\d+/))) {
+      var k = insight(m[1], txt(document.querySelector('.news-post__cat')), txt(document.querySelector('.news-post__title')));
+      put(body, [['작성', k], ['편집', 'park']], true); meta(k);
+      ldPatch(function (o) { if (!/Article/.test(o['@type'])) return 0; o.author = person(k); o.editor = person('park'); return 1; });
+      return;
+    }
+    if (body && /^\/about\/news\/view\/\d+/.test(path)) {
+      var r = newsRev(txt(document.querySelector('.news-post__title')));
+      put(body, [['작성', 'kimM'], ['감수', r]], true); meta('kimM');
+      ldPatch(function (o) { if (!/Article/.test(o['@type'])) return 0; o.author = person('kimM'); return 1; });
+      page([r]); return;
+    }
+    var pv = document.querySelector('.page-product-view .pview-info__body');
+    if (pv && /^\/products\//.test(path)) {
+      var br = '', cats = path.split('/');
+      ldPatch(function (o) { if (o['@type'] === 'Product' && o.brand) br = o.brand.name || ''; return 0; });
+      var who = /haier/i.test(br) || cats[2] === 'biomedical' ? 'lee' : /JRI|TMI/i.test(br) || /validator/.test(path) ? 'yang' : cats[2] === 'calibration' ? 'seol' : 'jung';
+      put(pv, [['기술 감수', who]], true); page([who]); return;
+    }
+    var tk = /^\/tools\//.test(path) && TOOL[path.split('/').pop()];
+    if (tk) { put(document.querySelector('.editorjs-content'), [['감수', tk]], true); return; }
+    var fq = document.querySelector('.faq-item');
+    var fk = /^\/cal\//.test(path) ? 'seol' : /^\/val\//.test(path) ? 'yang' : /^\/support\/faq/.test(path) ? 'han' : '';
+    if (fq && fk) { var all = document.querySelectorAll('.faq-item'), last = all[all.length - 1].parentNode; put(last, [['감수', fk]], false); page([fk]); return; }
+    put(null);
+  }
+  function meta(k) {
+    var mm = document.querySelector('.news-post__meta'); if (!mm || mm.querySelector('.tt-by-meta')) return;
+    var s = document.createElement('p'); s.className = 'news-post__date tt-by-meta'; s.textContent = P[k][0] + ' ' + P[k][1]; mm.appendChild(s);
+  }
+  function go() { try { run(); } catch (e) {} }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else go();
+  document.addEventListener('hah:content-swapped', function () { setTimeout(go, 60); });
 })();
