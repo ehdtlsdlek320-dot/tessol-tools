@@ -684,3 +684,6 @@ var bt=d.querySelector('button'),ul=d.querySelector('ul');bt.addEventListener('c
 document.querySelectorAll('.site-footer__col-title').forEach(function(t){if(t.textContent.trim()!=='제품정보')return;var ul=t.parentElement.querySelector('.site-footer__links');if(!ul||ul.querySelector('a[href="'+U+'"]'))return;var l=document.createElement('li');l.innerHTML='<a href="'+U+'">'+LT+'</a>';ul.appendChild(l)})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
 document.addEventListener('hah:content-swapped',run)})();
+
+// 교정 마이크로 사이트 페이지 빌더 본문 폭(밸리데이션과 같은 1320px) 맞춤
+;(function(){if(window.__TESSOL_MICRO)return;window.__TESSOL_MICRO="1";function run(){if(document.getElementById("tt-micro-css")||!document.querySelector(".page-builder-view.page-cal-inner"))return;var s=document.createElement("style");s.id="tt-micro-css";s.textContent=".page-cal-inner .page-builder-view__body .container{max-width:1320px;margin-left:auto;margin-right:auto}";document.head.appendChild(s)}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",run);else run();document.addEventListener("hah:content-swapped",run)})();
