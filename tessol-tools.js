@@ -556,6 +556,18 @@
     ['seol', /KOLAS|교정|불확도|TUR|소급성|표준기|17025/],
     ['lee', /Haier|하이얼|혈액|바이오메디컬|액체질소|LN2|바이오뱅크/i]
   ];
+  /* 11-28 사용자 지시: Digi·NCD·Teltonika·TESSOL 자체 브랜드·Pendulum·Soil Scout 글은 무조건 정광호. 기존 글은 번호 목록, 새 글은 제목 또는 본문 주 브랜드로 판단 */
+  var JIDS = ',10645,10625,5840,5828,5820,5810,5791,5785,5780,5757,5739,5726,5720,5716,5713,5712,5707,5702,5699,5696,5671,10736,10718,10666,10651,10622,10607,10605,5885,5876,5852,5851,5841,5839,5836,5834,5832,5825,5803,5802,5766,5745,5738,5735,5731,5642,10729,10677,10738,10720,10706,10678,10668,10660,5890,5875,5861,5860,5859,5854,5831,5826,5806,5797,5786,5775,5771,5763,5760,5752,5749,5747,5741,5724,5721,5705,5697,5690,5687,5686,5661,296,290,291,3219,3213,3210,3207,3204,3203,3201,3196,3195,3192,3188,3184,3182,3181,3176,3172,3169,3168,3166,3162,3160,3157,3153,3150,3143,3141,3139,3137,3121,3118,3114,3111,3106,3102,3097,3092,3091,3086,3080,3074,3071,3067,3057,3052,3051,3049,3046,3045,3042,3040,3038,3036,3035,3033,3026,3021,3020,3018,3013,3009,3008,2984,2979,2977,2976,2965,2964,2961,2960,';
+  var JG = /\bDigi\b|\bDIGI\b|XBee|ConnectCore|XCTU|RealPort|DigiMesh|\bNCD\b|Teltonika|\bRUT\d|\bTRB\d|Pendulum|\bCNT-\d|Soil ?Scout|소일 ?스카우트|TSCM|TSGW|XBT[A-Z]/g;
+  var JO = [/DICKSON|Dickson/g, /MadgeTech/gi, /JRI|Nova ?SPY|MySirius|TMI-|VACQ/g, /Fluke|FLUKE/g, /Haier/gi, /\bDENT\b/g, /Ralston/gi, /SoundWater/gi, /Additel/gi, /Sujing/gi, /Bodet/gi, /SpotSee|ShockWatch/gi, /\bMSR\b/g, /Baluntech/gi, /Hoytek/gi, /Zaxis/gi, /GW ?Instek/gi, /\bREED\b|Reed Instruments/g, /Ohm-?Labs/gi, /Leyro/gi, /NK Technologies/gi, /Quectel/gi, /MultiTech/gi, /Graphtec/gi];
+  function jungBrand(id, title, text) {
+    if (JIDS.indexOf(',' + id + ',') > -1) return 1;
+    if (+id <= 10738) return 0;
+    if (new RegExp(JG.source).test(title || '')) return 1;
+    var gc = ((text || '').match(JG) || []).length, oc = 0;
+    JO.forEach(function (r) { oc = Math.max(oc, ((text || '').match(r) || []).length); });
+    return gc >= 3 && gc >= oc ? 1 : 0;
+  }
   function insight(b, c, t) { for (var i = 0; i < KW.length; i++) if (KW[i][1].test(t || '')) return KW[i][0]; return (CAT[b] || {})[c] || 'kimI'; }
   function newsRev(t) {
     t = t || '';
@@ -601,15 +613,17 @@
     if (path === PG) { team(); return; }
     var body = document.querySelector('.news-post__body');
     if (body && (m = path.match(/^\/insight\/([^\/]+)\/view\/\d+/))) {
-      var k = insight(m[1], txt(document.querySelector('.news-post__cat')), txt(document.querySelector('.news-post__title')));
+      var pid = path.split('/').pop(), ttl = txt(document.querySelector('.news-post__title')), bt = txt(body.querySelector('.editorjs-content'));
+      var k = jungBrand(pid, ttl, bt) ? 'jung' : insight(m[1], txt(document.querySelector('.news-post__cat')), ttl);
       var rows = [['작성', k], ['편집', 'park']]; if (m[1] === 'cases') rows.push(['감수', 'han']); put(body.querySelector('.editorjs-content') || body, rows, true); meta(k); if (m[1] === 'cases') page(['han']);
       ldPatch(function (o) { if (!/Article/.test(o['@type'])) return 0; o.author = person(k); o.editor = person('park'); return 1; });
       return;
     }
     if (body && /^\/about\/news\/view\/\d+/.test(path)) {
-      var r = newsRev(txt(document.querySelector('.news-post__title')));
-      put(body.querySelector('.editorjs-content') || body, [['작성', 'kimM'], ['감수', r]], true); meta('kimM');
-      ldPatch(function (o) { if (!/Article/.test(o['@type'])) return 0; o.author = person('kimM'); return 1; });
+      var nt = txt(document.querySelector('.news-post__title')), r = newsRev(nt), wa = 'kimM';
+      if (jungBrand(path.split('/').pop(), nt, txt(body.querySelector('.editorjs-content')))) { wa = 'jung'; if (r === 'jung') r = 'han'; }
+      put(body.querySelector('.editorjs-content') || body, [['작성', wa], ['감수', r]], true); meta(wa);
+      ldPatch(function (o) { if (!/Article/.test(o['@type'])) return 0; o.author = person(wa); return 1; });
       page([r]); return;
     }
     var pv = document.querySelector('.page-product-view .pview-info__body');
