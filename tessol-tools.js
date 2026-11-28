@@ -686,4 +686,47 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 document.addEventListener('hah:content-swapped',run)})();
 
 // 교정 마이크로 사이트 페이지 빌더 본문 폭(밸리데이션과 같은 1320px) 맞춤
-;(function(){if(window.__TESSOL_MICRO)return;window.__TESSOL_MICRO="1";function run(){if(document.getElementById("tt-micro-css")||!document.querySelector(".page-builder-view.page-cal-inner"))return;var s=document.createElement("style");s.id="tt-micro-css";s.textContent=".page-cal-inner .page-builder-view__body .container{max-width:1320px;margin-left:auto;margin-right:auto}";document.head.appendChild(s)}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",run);else run();document.addEventListener("hah:content-swapped",run)})();
+;(function(){if(window.__TESSOL_MICRO)return;window.__TESSOL_MICRO="2";
+var B=".page-builder-view:is(.page-cal-inner,.page-val-inner) .page-builder-view__body",R="html.t-mr "+B,S=R+" .editorjs-content--sections>.tessol-section>.container";
+var css=".page-cal-inner .page-builder-view__body .container{max-width:1320px;margin-left:auto;margin-right:auto}"
++S+"{max-width:61.5rem;margin-inline:auto;word-break:keep-all;overflow-wrap:break-word}"
++S+">:is(p,h2,h3,h4,ul,ol,table,blockquote,figure,.tessol-faq,.tessol-callout,.faq-title){max-width:52.5rem;margin-left:auto!important;margin-right:auto!important;box-sizing:border-box}"
++S+">p{font-size:1.1875rem;line-height:1.8;letter-spacing:-.01em;color:#2c3844;margin-top:0;margin-bottom:0;text-wrap:pretty}"
++S+">:is(p,ul,ol,table)+:is(p,ul,ol,table){margin-top:1.375rem}"
++S+">h2{font-size:2.125rem;line-height:1.3;letter-spacing:-.035em;margin-top:6rem!important;margin-bottom:1.5rem!important;text-wrap:balance}"
++S+">h2:first-child{margin-top:0!important}"
++S+">h3{font-size:1.4375rem;line-height:1.4;margin-top:2.75rem!important;margin-bottom:1rem!important}"
++S+">:is(ul,ol) li{font-size:1.1875rem;line-height:1.7;color:#2c3844}"
++S+">table{width:100%;margin-top:1.75rem!important;font-size:1.0625rem}"
++R+" .editorjs-content--sections>.tessol-section+.tessol-section>.container{padding-top:4.5rem}"
++R+" .editorjs-content--sections>.tessol-section:first-child>.container{padding-top:4rem}"
++R+" .editorjs-content--sections>.tessol-section:last-of-type>.container{padding-bottom:6rem}"
++".t-mtoc{display:none}"
++"@media (min-width:1200px){html.t-mr.t-mr-toc "+B+"{display:grid;grid-template-columns:15rem minmax(0,61.5rem);column-gap:3rem;justify-content:center;max-width:83rem;margin-inline:auto}"
++"html.t-mr.t-mr-toc "+B+">:not(.t-mtoc){grid-column:2;min-width:0}"
++"html.t-mr.t-mr-toc "+B+" .editorjs-content--sections>.tessol-section>.container{padding-left:0;padding-right:0}"
++".t-mtoc{display:block;grid-column:1;grid-row:1 / span 9;align-self:start;position:sticky;top:110px;max-height:calc(100vh - 140px);overflow:auto;margin-top:4rem;font-size:.9375rem;line-height:1.5}"
++".t-mtoc .t-mtoc__t{margin:0 0 .75rem;padding:0 0 .75rem;border-bottom:2px solid #0E1A24;font-size:1rem;font-weight:800;color:#0E1A24}"
++".t-mtoc ol{list-style:none;margin:0;padding:0}.t-mtoc li{list-style:none;margin:0;padding:0}.t-mtoc li::before,.t-mtoc li::marker{content:none;display:none}"
++".t-mtoc a{display:block;word-break:keep-all;text-wrap:pretty;padding:.5rem 0 .5rem .875rem;border-left:3px solid #dfe4e8;color:#4a5560;font-weight:500;text-decoration:none}"
++".t-mtoc a:hover{color:#0E1A24}.t-mtoc a[aria-current]{border-left-color:#0E1A24;color:#0E1A24;font-weight:700}}"
++"@media (max-width:767px){"+S+">p,"+S+">:is(ul,ol) li{font-size:1.0625rem;line-height:1.75}"+S+">h2{font-size:1.625rem;margin-top:4rem!important;margin-bottom:1.125rem!important}"+R+" .editorjs-content--sections>.tessol-section+.tessol-section>.container{padding-top:3rem}}";
+function run(){
+  var body=document.querySelector(B);if(!body)return;
+  if(!document.getElementById("tt-micro-css")){var s=document.createElement("style");s.id="tt-micro-css";s.textContent=css;document.head.appendChild(s)}
+  if(!/^\/(cal|val)\/insight(\/|$)/.test(location.pathname))return;
+  var H=document.documentElement;H.classList.add("t-mr");
+  if(body.querySelector(".t-mtoc"))return;
+  var hs=[].filter.call(body.querySelectorAll(".editorjs-content--sections h2"),function(h){return !h.closest(".tessol-faq,.tessol-callout,.tessol-mixed")&&h.textContent.trim()});
+  if(hs.length<3)return;
+  var nav=document.createElement("nav");nav.className="t-mtoc";nav.setAttribute("aria-label","목차");
+  var t=document.createElement("p");t.className="t-mtoc__t";t.textContent="목차";nav.appendChild(t);
+  var ol=document.createElement("ol");nav.appendChild(ol);
+  var links=hs.map(function(h,i){if(!h.id)h.id="sec-"+(i+1);var li=document.createElement("li"),a=document.createElement("a");a.href="#"+h.id;a.textContent=h.textContent.replace(/[\s ⁠]+/g," ").trim();
+    a.addEventListener("click",function(e){e.preventDefault();scrollTo({top:h.getBoundingClientRect().top+scrollY-110,behavior:"smooth"});history.replaceState(null,"","#"+h.id)});
+    li.appendChild(a);ol.appendChild(li);return a});
+  body.insertBefore(nav,body.firstChild);H.classList.add("t-mr-toc");
+  var cur=-1;function upd(){var k=-1;for(var i=0;i<hs.length;i++){if(hs[i].getBoundingClientRect().top<160)k=i;else break}if(k!==cur){if(cur>=0)links[cur].removeAttribute("aria-current");if(k>=0)links[k].setAttribute("aria-current","true");cur=k}}
+  if(window.__tMtocUpd)removeEventListener("scroll",window.__tMtocUpd);window.__tMtocUpd=upd;addEventListener("scroll",upd,{passive:true});upd();
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",run);else run();document.addEventListener("hah:content-swapped",run)})();
