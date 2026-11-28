@@ -689,15 +689,15 @@ document.addEventListener('hah:content-swapped',run)})();
 ;(function(){if(window.__TESSOL_MICRO)return;window.__TESSOL_MICRO="2";
 var B=".page-builder-view:is(.page-cal-inner,.page-val-inner) .page-builder-view__body",R="html.t-mr "+B,S=R+" .editorjs-content--sections>.tessol-section>.container";
 var css=".page-cal-inner .page-builder-view__body .container{max-width:1320px;margin-left:auto;margin-right:auto}"
-+S+"{max-width:61.5rem;margin-inline:auto;word-break:keep-all;overflow-wrap:break-word}"
-+S+">:is(p,h2,h3,h4,ul,ol,table,blockquote,figure,.tessol-faq,.tessol-callout,.faq-title){max-width:52.5rem;margin-left:auto!important;margin-right:auto!important;box-sizing:border-box}"
++S+"{max-width:984px!important;margin-inline:auto;word-break:keep-all;overflow-wrap:break-word}"
++S+">:is(p,h2,h3,h4,ul,ol,table,blockquote,figure,.tessol-faq,.tessol-callout,.faq-title){max-width:840px!important;margin-left:auto!important;margin-right:auto!important;box-sizing:border-box}"
 +S+">p{font-size:1.1875rem;line-height:1.8;letter-spacing:-.01em;color:#2c3844;margin-top:0;margin-bottom:0;text-wrap:pretty}"
 +S+">:is(p,ul,ol,table)+:is(p,ul,ol,table){margin-top:1.375rem}"
 +S+">h2{font-size:2.125rem;line-height:1.3;letter-spacing:-.035em;margin-top:6rem!important;margin-bottom:1.5rem!important;text-wrap:balance}"
 +S+">h2:first-child{margin-top:0!important}"
 +S+">h3{font-size:1.4375rem;line-height:1.4;margin-top:2.75rem!important;margin-bottom:1rem!important}"
 +S+">:is(ul,ol) li{font-size:1.1875rem;line-height:1.7;color:#2c3844}"
-+S+">table{width:100%;margin-top:1.75rem!important;font-size:1.0625rem}"
++S+">table{width:100%!important;min-width:0!important;table-layout:fixed;margin-top:1.75rem!important;font-size:1.0625rem}"
 +R+" .editorjs-content--sections>.tessol-section+.tessol-section>.container{padding-top:4.5rem}"
 +R+" .editorjs-content--sections>.tessol-section:first-child>.container{padding-top:4rem}"
 +R+" .editorjs-content--sections>.tessol-section:last-of-type>.container{padding-bottom:6rem}"
